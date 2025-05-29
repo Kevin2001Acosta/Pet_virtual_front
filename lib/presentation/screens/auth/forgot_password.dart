@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+class ForgotScreen extends StatefulWidget {
+  const ForgotScreen({Key? key}) : super(key: key);
 
-class ForgotScreen extends StatelessWidget {
+  @override
+  State<ForgotScreen> createState() => _ForgotScreenState();
+}
+class _ForgotScreenState extends State<ForgotScreen> { 
+
    final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
