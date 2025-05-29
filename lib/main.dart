@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:yes_no_app/config/theme/app_theme.dart';
-import 'package:yes_no_app/presentation/providers/chat_provider.dart';
 import 'package:yes_no_app/presentation/screens/chat/chat_screen.dart';
 import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
@@ -13,7 +11,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Mascota Virtual',
       debugShowCheckedModeBanner: false,
@@ -22,10 +20,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/chat': (context) => const ChatScreen(), 
-        '/forgot_password' : (context) => ForgotScreen(),
+        '/chat': (context) => const ChatScreen(),
+        '/forgot_password': (context) => ForgotScreen(),
       },
     );
   }
 }
-

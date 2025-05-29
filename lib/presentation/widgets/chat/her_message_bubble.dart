@@ -32,7 +32,7 @@ class HerMessageBubble extends StatelessWidget {
     );
   }
 }
-
+/* 
 class _ImageBubble extends StatelessWidget {
   final String imageUrl;
 
@@ -58,7 +58,7 @@ class _ImageBubble extends StatelessWidget {
       ),
     );
   }
-}
+} */
 
 // TODO: algo por hacer
 //! cosas importantes
