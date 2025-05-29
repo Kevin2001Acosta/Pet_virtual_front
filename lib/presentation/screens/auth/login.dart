@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Shadow(
                 blurRadius: 2.0,
                 color: Colors.black.withOpacity(0.3),
-                offset: Offset(1.0, 1.0),
+                offset: const Offset(1.0, 1.0),
               ),
             ],
           ),
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.email, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.email, color:  Color.fromARGB(255, 15, 15, 15)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                     ),
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.lock, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.lock, color:Color.fromARGB(255, 15, 15, 15)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -119,13 +119,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(25),
                       child: ElevatedButton(
                         onPressed: () {
+                         Navigator.pushReplacementNamed(context, '/chat');
                           if (_emailController.text.isNotEmpty && 
                               _passwordController.text.isNotEmpty) {
-                            Navigator.pushReplacementNamed(context, '/');
+                            
+                            //Navigator.pushReplacementNamed(context, '/chat');
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor: const Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(

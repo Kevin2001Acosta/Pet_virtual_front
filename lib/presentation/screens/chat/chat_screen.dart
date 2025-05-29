@@ -18,10 +18,10 @@ class ChatScreen extends StatelessWidget {
           padding: EdgeInsets.all(4.0),
           child: CircleAvatar(
             backgroundImage: NetworkImage(
-                'https://th.bing.com/th/id/OIF.JRiGIOTpfRbhYRd7UavBag?rs=1&pid=ImgDetMain'),
+                'https://th.bing.com/th/id/R.6a2193a79bba1c2214b2d1ecdeca856b?rik=74%2fTKyxctg%2fCmA&riu=http%3a%2f%2fwww.blogerin.com%2fwp-content%2fuploads%2f2012%2f10%2fFotos-tiernas-de-perritos-wallpapers-2.jpg&ehk=2n7WA5Xz5SPLpcGw25Fh5QAQXVj7ywGhVORksb1OPE4%3d&risl=&pid=ImgRaw&r=0'),
           ),
         ),
-        title: const Text('el que todo lo sabe ❤️ '),
+        title: const Text('perrito :) '),
         centerTitle: true,
       ),
       body: _ChatView(),

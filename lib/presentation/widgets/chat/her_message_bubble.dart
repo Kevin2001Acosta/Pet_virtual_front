@@ -27,14 +27,12 @@ class HerMessageBubble extends StatelessWidget {
                 Text(message.text, style: const TextStyle(color: Colors.white)),
           ),
         ),
-        const SizedBox(height: 5),
-        _ImageBubble(imageUrl: message.imageUrl!),
         const SizedBox(height: 15),
       ],
     );
   }
 }
-
+/* 
 class _ImageBubble extends StatelessWidget {
   final String imageUrl;
 
@@ -60,7 +58,7 @@ class _ImageBubble extends StatelessWidget {
       ),
     );
   }
-}
+} */
 
 // TODO: algo por hacer
 //! cosas importantes
