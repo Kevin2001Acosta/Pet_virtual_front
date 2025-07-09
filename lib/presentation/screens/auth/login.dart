@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:yes_no_app/infrastructure/models/auth_model.dart';
+import 'package:yes_no_app/config/helpers/auth_service.dart';
+import 'package:yes_no_app/presentation/widgets/alert.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -7,9 +9,56 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 class _LoginScreenState extends State<LoginScreen> {
-  //bool _isLoading = false;
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;  
+  bool _obscureText = true;
+
+   Future<void> _loginUser() async {
+    print('Botón presionado'); 
+
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      {
+        showErrorDialog(
+          context: context,
+          title: 'Campos requeridos',
+          message: 'Por favor completa todos los campos',
+        );
+        return;
+      }
+    }
+ 
+    setState(() => _isLoading = true);
+
+    try {
+      final user = UserLogin(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      final authService = AuthService();
+      final response = await authService.login(user);
+
+      if (response['success'] == true) {
+        Navigator.pushReplacementNamed(context, '/chat');
+      } else {
+      showErrorDialog(
+      context: context,
+      title: 'Error',
+      message: response['message'] ?? 'Error en el inicio de sesión',
+     );    
+      }
+    } catch (e) {
+      showErrorDialog(
+      context: context,
+      title: 'Error',
+      message: 'Ocurrió un error inesperado: $e',
+   );  
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.email, color:  Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.email, color:Color.fromARGB(255, 15, 15, 15)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                     ),
@@ -82,14 +131,25 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: _obscureText,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.lock, color:Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 15, 15, 15)),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -118,14 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       elevation: 4,
                       borderRadius: BorderRadius.circular(25),
                       child: ElevatedButton(
-                        onPressed: () {
-                         Navigator.pushReplacementNamed(context, '/chat');
-                          if (_emailController.text.isNotEmpty && 
-                              _passwordController.text.isNotEmpty) {
-                            
-                            //Navigator.pushReplacementNamed(context, '/chat');
-                          }
-                        },
+                        onPressed: _isLoading ? null : _loginUser,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:yes_no_app/infrastructure/models/auth_model.dart';
+import 'package:yes_no_app/config/helpers/auth_service.dart';
+import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -8,9 +11,60 @@ class RegisterScreen extends StatefulWidget {
 }
 class _RegisterScreenState extends State<RegisterScreen> { 
 
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
+  bool _isLoading = false;
+  bool _obscureText = true;
+
+
+   Future<void> _registerUser() async {
+    print('Botón presionado'); 
+
+    if (_nameController.text.isEmpty || 
+        _emailController.text.isEmpty || 
+        _passwordController.text.isEmpty) 
+    {
+        showErrorDialog(
+          context: context,
+          title: 'Campos requeridos',
+          message: 'Por favor completa todos los campos',
+        );
+        return;
+      }
+ 
+    setState(() => _isLoading = true);
+
+    try {
+      final user = UserRegister(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      final authService = AuthService();
+      final response = await authService.register(user);
+
+      if (response['success'] == true) {
+        Navigator.pushReplacementNamed(context, '/login');
+      } 
+      else {
+      showErrorDialog(
+      context: context,
+      title: 'Error',
+      message: response['message'] ?? 'Error en el registro',
+     );    
+      }
+    } catch (e) {
+      showErrorDialog(
+      context: context,
+      title: 'Error',
+      message: 'Ocurrió un error inesperado: $e',
+   );  
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: _obscureText,
                     decoration: InputDecoration(
                       labelText: 'Contraseña',
                       labelStyle: const TextStyle(
@@ -113,6 +167,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         color: Colors.black54,
                       ),
                       prefixIcon: Icon(Icons.lock, color: const Color.fromARGB(255, 15, 15, 15)),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -129,12 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       elevation: 4,
                       borderRadius: BorderRadius.circular(25),
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_emailController.text.isNotEmpty && 
-                              _passwordController.text.isNotEmpty) {
-                            Navigator.pushReplacementNamed(context, '/');
-                          }
-                        },
+                        onPressed: _isLoading ? null : _registerUser,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,
@@ -156,8 +216,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   
                   // Botón de login
                   TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                    child: const Text(
+                  onPressed: () => Navigator.pushNamed(context, '/login'),
+                  child: const Text(
                       '¿Ya tienes cuenta?',
                       style: TextStyle(
                         fontFamily: 'Poppins',
@@ -173,4 +233,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 }
+
+

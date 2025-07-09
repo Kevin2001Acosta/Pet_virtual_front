@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ChatProvider()),
-        // Puedes añadir más providers aquí si los necesitas
+        
       ],
       child: MaterialApp(
         title: 'Mascota Virtual',
