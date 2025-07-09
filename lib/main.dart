@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:yes_no_app/config/theme/app_theme.dart';
+import 'package:yes_no_app/presentation/providers/chat_provider.dart';
 import 'package:yes_no_app/presentation/screens/chat/chat_screen.dart';
 import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(
+      MultiProvider(providers: [
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        ),
+      ], child: const MyApp()),
+    );
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -16,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Mascota Virtual',
       debugShowCheckedModeBanner: false,
       theme: AppTheme(selectedColor: 0).theme(),
-      initialRoute: '/login',
+      initialRoute: '/chat',
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),

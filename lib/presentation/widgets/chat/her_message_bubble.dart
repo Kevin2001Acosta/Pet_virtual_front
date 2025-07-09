@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:yes_no_app/domain/entities/message.dart';
 
 class HerMessageBubble extends StatelessWidget {
@@ -8,6 +9,15 @@ class HerMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final backgroundColor = colors.secondary;
+
+    // Determinar si el fondo es oscuro o claro
+
+    bool isDark(Color color) => color.computeLuminance() < 0.5;
+
+    final textColor = isDark(backgroundColor)
+        ? Colors.white
+        : Colors.black; // Color del texto según el fondo
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -23,8 +33,16 @@ class HerMessageBubble extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child:
-                Text(message.text, style: const TextStyle(color: Colors.white)),
+            child: MarkdownWidget(
+              data: message.text,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              config: MarkdownConfig(
+                configs: [
+                  PConfig(textStyle: TextStyle(color: textColor)),
+                ],
+              ),
+            ),
           ),
         ),
         const SizedBox(height: 15),
