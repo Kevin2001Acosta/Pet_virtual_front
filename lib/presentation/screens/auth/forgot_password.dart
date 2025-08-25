@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+class ForgotScreen extends StatefulWidget {
+  const ForgotScreen({Key? key}) : super(key: key);
 
-class ForgotScreen extends StatelessWidget {
-  final TextEditingController _emailController = TextEditingController();
+  @override
+  State<ForgotScreen> createState() => _ForgotScreenState();
+}
+class _ForgotScreenState extends State<ForgotScreen> { 
+
+   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
-  ForgotScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +57,8 @@ class ForgotScreen extends StatelessWidget {
                       fontFamily: 'Poppins',
                       color: Colors.black54,
                     ),
-                    prefixIcon: Icon(Icons.email,
-                        color: const Color.fromARGB(255, 15, 15, 15)),
+                    prefixIcon: const Icon(Icons.email,
+                        color:  Color.fromARGB(255, 15, 15, 15)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
                     ),
@@ -76,7 +80,7 @@ class ForgotScreen extends StatelessWidget {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 229, 47, 47),
+                        backgroundColor: const Color.fromARGB(255, 229, 47, 47),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(

@@ -20,17 +20,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mascota Virtual',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme(selectedColor: 0).theme(),
-      initialRoute: '/chat',
-      routes: {
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/chat': (context) => const ChatScreen(),
-        '/forgot_password': (context) => ForgotScreen(),
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Mascota Virtual',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme(selectedColor: 0).theme(),
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/register': (context) => const RegisterScreen(),
+          '/chat': (context) => const ChatScreen(),
+          '/forgot_password': (context) => const ForgotScreen(),
+        },
+      ),
     );
   }
 }
