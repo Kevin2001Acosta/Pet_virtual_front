@@ -9,30 +9,28 @@ class RegisterScreen extends StatefulWidget {
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
-class _RegisterScreenState extends State<RegisterScreen> { 
 
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
 
+  Future<void> _registerUser() async {
+    print('Botón presionado');
 
-   Future<void> _registerUser() async {
-    print('Botón presionado'); 
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      showErrorDialog(
+        context: context,
+        title: 'Campos requeridos',
+        message: 'Por favor completa todos los campos',
+      );
+      return;
+    }
 
-    if (_nameController.text.isEmpty || 
-        _emailController.text.isEmpty || 
-        _passwordController.text.isEmpty) 
-    {
-        showErrorDialog(
-          context: context,
-          title: 'Campos requeridos',
-          message: 'Por favor completa todos los campos',
-        );
-        return;
-      }
- 
     setState(() => _isLoading = true);
 
     try {
@@ -47,20 +45,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (response['success'] == true) {
         Navigator.pushReplacementNamed(context, '/login');
-      } 
-      else {
-      showErrorDialog(
-      context: context,
-      title: 'Error',
-      message: response['message'] ?? 'Error en el registro',
-     );    
+      } else {
+        showErrorDialog(
+          context: context,
+          title: 'Error',
+          message: response['message'] ?? 'Error en el registro',
+        );
       }
     } catch (e) {
       showErrorDialog(
-      context: context,
-      title: 'Error',
-      message: 'Ocurrió un error inesperado: $e',
-   );  
+        context: context,
+        title: 'Error',
+        message: 'Ocurrió un error inesperado: $e',
+      );
     } finally {
       setState(() => _isLoading = false);
     }
@@ -77,25 +74,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'Crear cuenta',
           style: TextStyle(
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700, 
-            fontSize: 32, 
-             color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 32,
+            color: Colors.white,
             shadows: [
               Shadow(
                 blurRadius: 2.0,
                 color: Colors.black.withOpacity(0.3),
-                offset: Offset(1.0, 1.0),
+                offset: const Offset(1.0, 1.0),
               ),
             ],
           ),
         ),
         centerTitle: true,
       ),
-      
       body: Stack(
         children: [
           Positioned(
-            top: -MediaQuery.of(context).size.width * 0.7,  
+            top: -MediaQuery.of(context).size.width * 0.7,
             left: -MediaQuery.of(context).size.width * 0.3,
             child: Container(
               width: MediaQuery.of(context).size.width * 1.5,
@@ -106,22 +102,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-          
+
           // Contenido principal
-          Center( 
+          Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80), 
+                  const SizedBox(height: 80),
                   const Icon(
-                    Icons.pets, 
+                    Icons.pets,
                     size: 150,
                     color: Colors.white,
                   ),
                   const SizedBox(height: 80),
-                  
+
                   // Campos de texto
                   TextField(
                     controller: _nameController,
@@ -131,7 +127,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.person_outline, color: Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.person_outline,
+                          color: Color.fromARGB(255, 15, 15, 15)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -148,7 +145,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.email, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.email,
+                          color: Color.fromARGB(255, 15, 15, 15)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
@@ -166,10 +164,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.lock, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: const Icon(Icons.lock,
+                          color: Color.fromARGB(255, 15, 15, 15)),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          _obscureText
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                           color: Colors.grey,
                         ),
                         onPressed: () {
@@ -186,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  
+
                   // Botón de degistro
                   SizedBox(
                     width: double.infinity,
@@ -196,7 +197,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _registerUser,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor:
+                              const Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -213,15 +215,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
                   // Botón de login
                   TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/login'),
-                  child: const Text(
+                    onPressed: () => Navigator.pushNamed(context, '/login'),
+                    child: const Text(
                       '¿Ya tienes cuenta?',
                       style: TextStyle(
                         fontFamily: 'Poppins',
-                        color: Color.fromARGB(255, 229, 47, 47), 
+                        color: Color.fromARGB(255, 229, 47, 47),
                       ),
                     ),
                   ),
@@ -242,5 +244,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 }
-
-

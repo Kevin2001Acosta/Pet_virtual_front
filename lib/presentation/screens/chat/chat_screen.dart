@@ -8,7 +8,8 @@ import 'package:yes_no_app/presentation/widgets/shared/message_field_box.dart';
 import '../../../domain/entities/message.dart';
 
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  final String email;
+  const ChatScreen({super.key, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +25,41 @@ class ChatScreen extends StatelessWidget {
         title: const Text('perrito :) '),
         centerTitle: true,
       ),
-      body: _ChatView(),
+      body: _ChatView(email: email),
     );
   }
 }
 
-class _ChatView extends StatelessWidget {
+class _ChatView extends StatefulWidget {
+  final String email;
+  const _ChatView({required this.email});
+
+  @override
+  State<_ChatView> createState() => _ChatViewState();
+}
+
+class _ChatViewState extends State<_ChatView> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMessages();
+  }
+
+  Future<void> _loadMessages() async {
+    final chatProvider = context.read<ChatProvider>();
+    await chatProvider.loadMessages(widget.email);
+    if (mounted) setState(() => _loading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
+
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return SafeArea(
       child: Padding(
@@ -56,7 +83,8 @@ class _ChatView extends StatelessWidget {
               },
             )),
             MessageFieldBox(
-                onValue: (value) => chatProvider.sendMessage(value)),
+                onValue: (value) =>
+                    chatProvider.sendMessage(value, widget.email)),
           ],
         ),
       ),

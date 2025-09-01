@@ -8,20 +8,20 @@ class ChatProvider extends ChangeNotifier {
 
   List<Message> messageList = [];
 
-  Future<void> sendMessage(String text) async {
+  Future<void> sendMessage(String text, String email) async {
     if (text.isEmpty) return;
     final newMessage = Message(text: text, fromWho: FromWho.me);
     messageList.add(newMessage);
 
-    herReply(text);
+    herReply(text, email);
 
     notifyListeners();
     moveScrollToBottom();
   }
 
   // petición
-  Future<void> herReply(String text) async {
-    final herMessage = await getIAAnswer.getAnswer(text);
+  Future<void> herReply(String text, String email) async {
+    final herMessage = await getIAAnswer.getAnswer(text, email);
     messageList.add(herMessage);
     print(herMessage.text); // ignore: avoid_print
     print(herMessage.imageUrl); // ignore: avoid_print
@@ -30,8 +30,17 @@ class ChatProvider extends ChangeNotifier {
     moveScrollToBottom();
   }
 
+  Future<void> loadMessages(String email) async {
+    // llama al backedn
+    final messages = await getIAAnswer.getMessages(email);
+    messageList = messages;
+    notifyListeners();
+    moveScrollToBottom();
+  }
+
   Future<void> moveScrollToBottom() async {
     await Future.delayed(const Duration(milliseconds: 100));
+    if (!chatScrollController.hasClients) return;
     chatScrollController.animateTo(
         chatScrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),

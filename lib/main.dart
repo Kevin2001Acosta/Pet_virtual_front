@@ -32,7 +32,12 @@ class MyApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
-          '/chat': (context) => const ChatScreen(),
+          '/chat': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments
+                as Map<String, dynamic>?;
+            final email = args?['email'] ?? '';
+            return ChatScreen(email: email);
+          },
           '/forgot_password': (context) => const ForgotScreen(),
         },
       ),
