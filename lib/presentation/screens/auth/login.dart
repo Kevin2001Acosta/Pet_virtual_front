@@ -41,6 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final authService = AuthService();
       final response = await authService.login(user);
 
+      print('Respuesta completa: $response');
+
       if (response['success'] == true) {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/chat',
@@ -50,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         showErrorDialog(
           context: context,
           title: 'Error',
-          message: response['message'] ?? 'Error en el inicio de sesión',
+          message: response['error'] ?? 'Error en el inicio de sesión',
         );
       }
     } catch (e) {
@@ -67,89 +69,109 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          'Mascota virtual',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700,
-            fontSize: 32,
-            color: Colors.white,
-            shadows: [
-              Shadow(
-                blurRadius: 2.0,
-                color: Colors.black.withOpacity(0.3),
-                offset: const Offset(1.0, 1.0),
-              ),
-            ],
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Stack(
+     body: Stack(
         children: [
-          Positioned(
-            top: -MediaQuery.of(context).size.width * 0.7,
-            left: -MediaQuery.of(context).size.width * 0.3,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 1.5,
-              height: MediaQuery.of(context).size.width * 1.5,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 229, 47, 47),
-                shape: BoxShape.circle,
+
+          // Fondo
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                Color(0xFFF48A8A), 
+                Color(0xFFFDEDED), 
+              ],
               ),
             ),
-          ),
+          ),    
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80),
-                  const Icon(
-                    Icons.pets,
-                    size: 150,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 80),
+                const SizedBox(height: 30),
 
+                //Titulo
+                Text(
+                  'Mascota virtual',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600, 
+                    fontSize: 36, 
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    letterSpacing: 1.0,
+                    height: 1.2, 
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2.0,
+                        color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.8),
+                        offset: const Offset(2.0, 2.0),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+              //Imagen 
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromARGB(255, 233, 80, 70),
+                    border: Border.all(color: Colors.white, width: 5), 
+                  ),
+                  padding: const EdgeInsets.all(8),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/mascota.png',
+                        width: 180, 
+                        height: 180, 
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    ),
+                   const SizedBox(height: 40),
+
+//Campos               
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                      labelText: 'Correo electrónico',
+                      hintText: 'Correo electrónico',
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
-                        color: Colors.black54,
+                        color: Color.fromARGB(134, 0, 0, 0),
                       ),
                       prefixIcon: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 15, 15, 15)),
+                          color: Color.fromARGB(255, 95, 95, 95)),
+                      filled: true,
+                      fillColor: Colors.white,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
+
                   TextField(
                     controller: _passwordController,
                     obscureText: _obscureText,
                     decoration: InputDecoration(
-                      labelText: 'Contraseña',
+                      hintText: 'Contraseña',
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
-                        color: Colors.black54,
+                        color: Color.fromARGB(136, 0, 0, 0),
                       ),
                       prefixIcon: const Icon(Icons.lock,
-                          color: Color.fromARGB(255, 15, 15, 15)),
+                          color: Color.fromARGB(255, 95, 95, 95)),
+                      filled: true,
+                      fillColor: Colors.white,
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureText
                               ? Icons.visibility_off
                               : Icons.visibility,
-                          color: Colors.grey,
+                          color: const Color.fromARGB(255, 95, 95, 95),
                         ),
                         onPressed: () {
                           setState(() {
@@ -158,13 +180,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                       borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
 
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: Alignment.center,
                     child: TextButton(
                       onPressed: () =>
                           Navigator.pushNamed(context, '/forgot_password'),
@@ -172,11 +194,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Recuperar contraseña',
                         style: TextStyle(
                             fontFamily: 'Poppins',
-                            color: Color.fromARGB(255, 229, 47, 47)),
+                            fontSize: 16, 
+                            color: Colors.black, ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 60),
+                  const SizedBox(height: 50),
 
                   //Iniciar sesion
                   SizedBox(
@@ -196,24 +219,36 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           textStyle: const TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Text('Iniciar Sesión'),
+                        child: const Text('INICIAR SESIÓN'),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 5),
 
                   //Registarse
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/register'),
-                    child: const Text(
-                      '¿No tienes cuenta? Regístrate',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Color.fromARGB(255, 229, 47, 47),
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          color: Colors.black, 
+                        ),
+                        children:  [
+                          TextSpan(text: '¿No tienes cuenta? '),
+                          TextSpan(
+                            text: 'Regístrate',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

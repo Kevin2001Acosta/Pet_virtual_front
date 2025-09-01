@@ -13,58 +13,89 @@ class _ForgotScreenState extends State<ForgotScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          title: Text(
-            'Recuperar contraseña',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w700,
-              fontSize: 25,
-              color: const Color.fromARGB(255, 197, 69, 69),
-              shadows: [
-                Shadow(
-                  blurRadius: 2.0,
-                  color: Colors.black.withOpacity(0.3),
-                  offset: const Offset(1.0, 1.0),
-                ),
-              ],
-            ),
+      body: Stack(
+        children: [
+        Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                Color(0xFFF48A8A), 
+                Color(0xFFFDEDED), 
+                ],  
+              ),
+            ),  
           ),
-          centerTitle: true,
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.pets,
-                  size: 100,
-                  color: Color.fromARGB(255, 229, 47, 47),
-                ),
-                const SizedBox(height: 30),
-
-                // Campos de texto
-
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Correo electrónico',
-                    labelStyle: const TextStyle(
-                      fontFamily: 'Poppins',
-                      color: Colors.black54,
-                    ),
-                    prefixIcon: const Icon(Icons.email,
-                        color:  Color.fromARGB(255, 15, 15, 15)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
+        
+          Center( 
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: Column (
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                  
+                  const Icon(Icons.lock,
+                   color: Color.fromARGB(255, 229, 47, 47),
+                   size: 100,
+                   ),
+                  const SizedBox(height: 10),
+                  
+                //Titulo
+                Text(
+                  'Recuperar Contraseña',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w600, 
+                    fontSize: 38, 
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    letterSpacing: 1.0,
+                    height: 1.2, 
+                    shadows: [
+                      Shadow(
+                        blurRadius: 2.0,
+                        color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.8),
+                        offset: const Offset(2.0, 2.0),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 10),
+
+                const Text(
+                  'Ingresa tu correo electrónico para restablecer tu acceso',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 20, 
+                    color: const Color.fromARGB(255, 0, 0, 0),
+                    letterSpacing: 1.0,
+                    height: 1.2, 
+                    
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+
+                // Campos de texto
+                TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Correo electrónico',
+                      labelStyle: const TextStyle(
+                        fontFamily: 'Poppins',
+                        color: Colors.black54,
+                      ),
+                      prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 95, 95, 95)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                const SizedBox(height: 30),
 
                 // Botón de Recuperar
                 SizedBox(
@@ -92,7 +123,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: const Text('Recuperar'),
+                      child: const Text('ENVIAR CÓDIGO'),
                     ),
                   ),
                 ),
@@ -100,6 +131,9 @@ class _ForgotScreenState extends State<ForgotScreen> {
               ],
             ),
           ),
-        ));
-  }
+        ),
+        ],
+    ),
+   );
+ }
 }

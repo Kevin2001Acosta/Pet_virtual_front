@@ -8,24 +8,34 @@ import 'package:yes_no_app/presentation/widgets/shared/message_field_box.dart';
 import '../../../domain/entities/message.dart';
 
 class ChatScreen extends StatelessWidget {
-  final String email;
+   final String email;
   const ChatScreen({super.key, required this.email});
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: const Padding(
-          padding: EdgeInsets.all(4.0),
+        leading: Padding(
+          padding: const EdgeInsets.all(4.0),
           child: CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://th.bing.com/th/id/R.6a2193a79bba1c2214b2d1ecdeca856b?rik=74%2fTKyxctg%2fCmA&riu=http%3a%2f%2fwww.blogerin.com%2fwp-content%2fuploads%2f2012%2f10%2fFotos-tiernas-de-perritos-wallpapers-2.jpg&ehk=2n7WA5Xz5SPLpcGw25Fh5QAQXVj7ywGhVORksb1OPE4%3d&risl=&pid=ImgRaw&r=0'),
+            backgroundColor: Colors.transparent,
+            child: Image.asset(
+              'assets/images/mascota.png',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
-        title: const Text('perrito :) '),
+        title: const Text('Mascota :)',
+        style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+         ),
         centerTitle: true,
+        elevation: 2, 
+        backgroundColor: Color.fromARGB(255, 247, 231, 231)
       ),
-      body: _ChatView(email: email),
+           body: _ChatView(email: email),
     );
   }
 }
@@ -53,13 +63,10 @@ class _ChatViewState extends State<_ChatView> {
     if (mounted) setState(() => _loading = false);
   }
 
+ 
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
-
-    if (_loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
 
     return SafeArea(
       child: Padding(
