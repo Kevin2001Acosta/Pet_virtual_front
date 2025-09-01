@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yes_no_app/infrastructure/models/auth_model.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
 import 'package:yes_no_app/presentation/widgets/alert.dart';
+import 'dart:ui' as ui;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -69,71 +70,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          'Crear cuenta',
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w700, 
-            fontSize: 32, 
-             color: Colors.white,
-            shadows: [
-              Shadow(
-                blurRadius: 2.0,
-                color: Colors.black.withOpacity(0.3),
-                offset: Offset(1.0, 1.0),
-              ),
-            ],
-          ),
-        ),
-        centerTitle: true,
-      ),
-      
       body: Stack(
         children: [
-          Positioned(
-            top: -MediaQuery.of(context).size.width * 0.7,  
-            left: -MediaQuery.of(context).size.width * 0.3,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 1.5,
-              height: MediaQuery.of(context).size.width * 1.5,
-              decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 229, 47, 47),
-                shape: BoxShape.circle,
+          // Fondo
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                Color(0xFFF48A8A), 
+                Color(0xFFFDEDED), 
+                ],  
               ),
-            ),
+            ),  
           ),
-          
-          // Contenido principal
           Center( 
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80), 
-                  const Icon(
-                    Icons.pets, 
-                    size: 150,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(height: 80),
-                  
-                  // Campos de texto
+                 Padding(
+                 padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                        crossAxisAlignment: CrossAxisAlignment.center, 
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Crear cuenta',
+                              textAlign: TextAlign.center, 
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 34,
+                                color: Color.fromARGB(255, 10, 10, 10),
+                                letterSpacing: 1.0,
+                                height: 1.2,
+                                shadows: [
+                                  ui.Shadow(
+                                    blurRadius: 2.0,
+                                    color: Color.fromARGB(255, 255, 254, 254),
+                                    offset: Offset(2.0, 2.0),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Transform.translate(
+                          offset: const Offset(70, 0),
+                            child: SizedBox(
+                                    width: 200, 
+                                    height: 200, 
+                                    child: Align(
+                                      alignment: Alignment.centerRight, 
+                                      child: Transform.rotate(
+                                        angle: -0.2,
+                                        child: Image.asset(
+                                          'assets/images/register.png',
+                                         
+                                        ),
+                                      ),
+                                  ),
+                              ),
+                            ),
+                            ],
+                          ),     
+                        ],
+                          ),
+                      ),
+                    const SizedBox(height: 20),
+
+                  //Campos
                   TextField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: 'Nombre',
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
-                        color: Colors.black54,
+                        color: Color.fromARGB(137, 0, 0, 0),
                       ),
-                      prefixIcon: Icon(Icons.person_outline, color: Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: Icon(Icons.person_outline, color: Color.fromARGB(255, 95, 95, 95)),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -148,9 +171,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.email, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 95, 95, 95)),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -166,7 +189,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.lock, color: const Color.fromARGB(255, 15, 15, 15)),
+                      prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 95, 95, 95)),
+                      
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureText ? Icons.visibility_off : Icons.visibility,
@@ -179,13 +203,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                       filled: true,
                       fillColor: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 80),
                   
                   // Botón de degistro
                   SizedBox(
@@ -204,27 +228,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           textStyle: const TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 16,
+                            fontSize: 20,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        child: const Text('Registrarse'),
+                        child: const Text('REGISTRARSE'),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 5),
                   
                   // Botón de login
-                  TextButton(
-                  onPressed: () => Navigator.pushNamed(context, '/login'),
-                  child: const Text(
-                      '¿Ya tienes cuenta?',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Color.fromARGB(255, 229, 47, 47), 
+
+                TextButton(
+                   onPressed: () => Navigator.pushNamed(context, '/login'),
+                    child: RichText(
+                      text: const TextSpan(
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          color: Colors.black, 
+                        ),
+                        children:  [
+                          TextSpan(text: ' ¿Ya tienes cuenta? '),
+                          TextSpan(
+                            text: 'Inicia sesión',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
