@@ -6,6 +6,7 @@ import 'package:yes_no_app/presentation/screens/chat/chat_screen.dart';
 import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
+import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
 
 void main() => runApp(
       MultiProvider(providers: [
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
             return ChatScreen(email: email);
           },
           '/forgot_password': (context) => const ForgotScreen(),
+          '/changePassword': (context) => const ChangePasswordScreen(),
         },
       ),
     );

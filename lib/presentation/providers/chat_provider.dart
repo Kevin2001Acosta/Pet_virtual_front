@@ -5,37 +5,71 @@ import 'package:yes_no_app/domain/entities/message.dart';
 class ChatProvider extends ChangeNotifier {
   final ScrollController chatScrollController = ScrollController();
   final GetIAAnswer getIAAnswer = GetIAAnswer();
+  bool _isLoading = false; 
 
   List<Message> messageList = [];
+
+  bool get isLoading => _isLoading;
+
+  
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
 
   Future<void> sendMessage(String text, String email) async {
     if (text.isEmpty) return;
     final newMessage = Message(text: text, fromWho: FromWho.me);
     messageList.add(newMessage);
 
-    herReply(text, email);
-
-    notifyListeners();
+     notifyListeners();
+    
+    _setLoading(true); 
     moveScrollToBottom();
+    herReply(text, email);
   }
 
   // petición
   Future<void> herReply(String text, String email) async {
-    final herMessage = await getIAAnswer.getAnswer(text, email);
-    messageList.add(herMessage);
-    print(herMessage.text); // ignore: avoid_print
-    print(herMessage.imageUrl); // ignore: avoid_print
-    notifyListeners();
+    _setLoading(true); 
 
-    moveScrollToBottom();
+    try {
+      final herMessage = await getIAAnswer.getAnswer(text, email);
+      messageList.add(herMessage);
+      print(herMessage.text); // ignore: avoid_print
+      print(herMessage.imageUrl); // ignore: avoid_print
+    } catch (e) {
+      messageList.add(Message(
+        text: '¡Ups! No pude responder. Error: ${e.toString()}',
+        fromWho: FromWho.hers,
+      ));
+    } finally {
+      _setLoading(false); 
+      
+      notifyListeners();
+      moveScrollToBottom();
+    }
   }
 
   Future<void> loadMessages(String email) async {
-    // llama al backedn
-    final messages = await getIAAnswer.getMessages(email);
-    messageList = messages;
-    notifyListeners();
-    moveScrollToBottom();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setLoading(true);
+    });
+
+    try {
+      final messages = await getIAAnswer.getMessages(email);
+      messageList = messages;
+
+    } catch (e) {
+      messageList.add(Message(
+        text: 'Error cargando mensajes: ${e.toString()}',
+        fromWho: FromWho.me,
+      ));
+    } finally {
+      _setLoading(false);
+      notifyListeners();
+      moveScrollToBottom();
+    }
   }
 
   Future<void> moveScrollToBottom() async {
@@ -45,5 +79,11 @@ class ChatProvider extends ChangeNotifier {
         chatScrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut);
+  }
+
+  @override
+  void dispose() {
+    chatScrollController.dispose();
+    super.dispose();
   }
 }

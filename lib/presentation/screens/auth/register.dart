@@ -124,7 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     width: 200, 
                                     height: 200, 
                                     child: Align(
-                                      alignment: Alignment.centerRight, 
+                                      alignment: Alignment.centerLeft, 
                                       child: Transform.rotate(
                                         angle: -0.2,
                                         child: Image.asset(

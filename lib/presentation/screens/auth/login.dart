@@ -17,8 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscureText = true;
 
   Future<void> _loginUser() async {
-    print('Botón presionado');
-
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       {
         showErrorDialog(
@@ -29,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
     }
-
     setState(() => _isLoading = true);
 
     try {
@@ -46,7 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response['success'] == true) {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/chat',
-            arguments: {'email': user.email});
+            arguments: {'email': user.email}
+            );
       } else {
         if (!mounted) return;
         showErrorDialog(

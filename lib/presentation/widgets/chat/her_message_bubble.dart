@@ -8,48 +8,76 @@ class HerMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final backgroundColor = colors.secondary;
-
+   
+    final backgroundColor = Color.fromARGB(255, 218, 213, 204); 
+    
     // Determinar si el fondo es oscuro o claro
-
     bool isDark(Color color) => color.computeLuminance() < 0.5;
+    final textColor = isDark(backgroundColor) ? Colors.white : Colors.black;
 
-    final textColor = isDark(backgroundColor)
-        ? Colors.white
-        : Colors.black; // Color del texto según el fondo
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: colors.secondary,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(15),
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start, 
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const CircleAvatar(
+            radius: 16,
+            backgroundColor: Color.fromARGB(255, 218, 213, 204), 
+            child: Text(
+              '🐿️', // Emoji de ardilla
+              style: TextStyle(fontSize: 14),
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: MarkdownWidget(
-              data: message.text,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              config: MarkdownConfig(
-                configs: [
-                  PConfig(textStyle: TextStyle(color: textColor)),
+          
+          const SizedBox(width: 8), 
+          
+          // Burbuja de mensaje
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.7, 
+              ),
+              decoration: BoxDecoration(
+                color: backgroundColor, 
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(5), 
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20), 
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 3,
+                    offset: const Offset(0, 1),
+                  ),
                 ],
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: MarkdownWidget(
+                  data: message.text,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  config: MarkdownConfig(
+                    configs: [
+                      PConfig(textStyle: TextStyle(
+                        color: textColor,
+                        fontSize: 16,
+                      )),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 15),
-      ],
+        ],
+      ),
     );
   }
 }
+
 /* 
 class _ImageBubble extends StatelessWidget {
   final String imageUrl;
