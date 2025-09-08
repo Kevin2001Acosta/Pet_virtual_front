@@ -10,12 +10,13 @@ class ForgotScreen extends StatefulWidget {
   @override
   State<ForgotScreen> createState() => _ForgotScreenState();
 }
-class _ForgotScreenState extends State<ForgotScreen> { 
-  final TextEditingController _emailController = TextEditingController();
-  final AuthService _authService = AuthService(); 
-  bool _isLoading = false; 
 
-Future<void> _sendResetLink() async {
+class _ForgotScreenState extends State<ForgotScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+
+  Future<void> _sendResetLink() async {
     if (_emailController.text.isEmpty) {
       showErrorDialog(
         context: context,
@@ -28,7 +29,8 @@ Future<void> _sendResetLink() async {
       _isLoading = true;
     });
     try {
-      final result = await _authService.sendPasswordResetLink(_emailController.text);
+      final result =
+          await _authService.sendPasswordResetLink(_emailController.text);
       setState(() {
         _isLoading = false;
       });
@@ -36,22 +38,25 @@ Future<void> _sendResetLink() async {
         showSuccessDialog(
           context: context,
           title: 'Correo enviado',
-          message: result['message'] ?? 'Se ha enviado un enlace de recuperación a tu correo electrónico.',
+          message: result['message'] ??
+              'Se ha enviado un enlace de recuperación a tu correo electrónico.',
           onPressed: () {
-          Navigator.of(context).pop();
+            Navigator.of(context).pop();
           },
         );
       } else {
         showErrorDialog(
           context: context,
           title: 'Error',
-          message: result['error'] ?? 'Ocurrió un error desconocido al enviar el correo',
+          message: result['error'] ??
+              'Ocurrió un error desconocido al enviar el correo',
         );
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
+      if (!mounted) return;
       showErrorDialog(
         context: context,
         title: 'Error de conexión',
@@ -60,7 +65,6 @@ Future<void> _sendResetLink() async {
     }
   }
 
-      
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,41 +76,43 @@ Future<void> _sendResetLink() async {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFF48A8A), 
-                  Color(0xFFFDEDED), 
-                ],  
+                  Color(0xFFF48A8A),
+                  Color(0xFFFDEDED),
+                ],
               ),
-            ),  
+            ),
           ),
-        
-         //Icono
-          Center( 
+
+          //Icono
+          Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 children: [
-                  const Icon(Icons.lock,
-                   color: Color.fromARGB(255, 229, 47, 47),
-                   size: 80,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.lock,
+                    color: Color.fromARGB(255, 229, 47, 47),
+                    size: 80,
                   ),
                   const SizedBox(height: 1),
-                  
+
                   // Titulo
                   Text(
                     'Recuperar Contraseña',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600, 
-                      fontSize: 38, 
+                      fontWeight: FontWeight.w600,
+                      fontSize: 38,
                       color: const Color.fromARGB(255, 0, 0, 0),
                       letterSpacing: 0.8,
-                      height: 1.2, 
+                      height: 1.2,
                       shadows: [
                         Shadow(
                           blurRadius: 2.0,
-                          color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.8),
+                          color: const Color.fromARGB(255, 250, 250, 250)
+                              .withOpacity(0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],
@@ -119,10 +125,10 @@ Future<void> _sendResetLink() async {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 16, 
+                      fontSize: 16,
                       color: Color.fromARGB(255, 0, 0, 0),
                       letterSpacing: 1.0,
-                      height: 1.2, 
+                      height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -131,12 +137,13 @@ Future<void> _sendResetLink() async {
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                     hintText:'Correo electrónico',
+                      hintText: 'Correo electrónico',
                       labelStyle: const TextStyle(
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(Icons.email,
+                          color: Color.fromARGB(255, 95, 95, 95)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -156,7 +163,8 @@ Future<void> _sendResetLink() async {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _sendResetLink,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor:
+                              const Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -169,7 +177,8 @@ Future<void> _sendResetLink() async {
                           ),
                         ),
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : const Text('ENVIAR ENLACE'),
                       ),
                     ),

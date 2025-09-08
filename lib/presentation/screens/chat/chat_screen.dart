@@ -10,12 +10,12 @@ import '../../../domain/entities/message.dart';
 class ChatScreen extends StatelessWidget {
   final String email;
   const ChatScreen({super.key, required this.email});
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        /*
+          /*
         leading: Padding(
           padding: const EdgeInsets.all(4.0),
           child: CircleAvatar(
@@ -27,23 +27,21 @@ class ChatScreen extends StatelessWidget {
           ),
         ),
         */
-        
-        title: const Text(
-          'Mascota',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+
+          title: const Text(
+            'Mascota',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
-        ),
-        
-        centerTitle: true,
-        elevation: 1, 
-        backgroundColor: Color.fromARGB(255, 247, 38, 38)   ),
+          centerTitle: true,
+          elevation: 1,
+          backgroundColor: const Color.fromARGB(255, 247, 38, 38)),
       body: _ChatView(email: email),
     );
   }
 }
-
 
 class _ChatView extends StatefulWidget {
   final String email;
@@ -99,23 +97,24 @@ class _ChatViewState extends State<_ChatView> {
           ),
 */
 
-Consumer<ChatProvider>(
-  builder: (context, chatProvider, child) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration( // ¡Borde temporal para debug!
-        border: Border.all(color: Colors.red, width: 2),
-      ),
-      height: 250,
-      child: Center(
-        child: MascotaAnimation(
-          isSpeaking: chatProvider.isLoading,
-          size: 200,
-        ),
-      ),
-    );
-  },
-),
+          Consumer<ChatProvider>(
+            builder: (context, chatProvider, child) {
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  // ¡Borde temporal para debug!
+                  border: Border.all(color: Colors.red, width: 2),
+                ),
+                height: 250,
+                child: Center(
+                  child: MascotaAnimation(
+                    isSpeaking: chatProvider.isLoading,
+                    size: 200,
+                  ),
+                ),
+              );
+            },
+          ),
 
           // DIVIDER
           const Divider(
@@ -124,7 +123,7 @@ Consumer<ChatProvider>(
             color: Color.fromARGB(255, 209, 208, 208),
           ),
 
-          // ÁREA DE CHAT 
+          // ÁREA DE CHAT
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -148,7 +147,7 @@ Consumer<ChatProvider>(
 
                   // CAMPO DE TEXTO
                   MessageFieldBox(
-                    onValue: (value) => 
+                    onValue: (value) =>
                         chatProvider.sendMessage(value, widget.email),
                   ),
                 ],

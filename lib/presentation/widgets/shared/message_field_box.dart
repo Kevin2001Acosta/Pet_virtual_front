@@ -25,7 +25,9 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
     final colors = Theme.of(context).colorScheme;
 
     final outlineInputBorder = OutlineInputBorder(
-      borderSide: BorderSide(color: Color.fromARGB(255, 217, 3, 3),),
+      borderSide: const BorderSide(
+        color: Color.fromARGB(255, 217, 3, 3),
+      ),
       borderRadius: BorderRadius.circular(30),
       gapPadding: 0,
     );
@@ -35,19 +37,21 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
       hintStyle: TextStyle(color: Colors.grey[600], fontSize: 16),
       enabledBorder: outlineInputBorder,
       focusedBorder: outlineInputBorder.copyWith(
-        borderSide: BorderSide(color: Color.fromARGB(255, 217, 3, 3), width: 2),
+        borderSide:
+            const BorderSide(color: Color.fromARGB(255, 217, 3, 3), width: 2),
       ),
       filled: true,
       fillColor: Colors.grey[50],
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       suffixIcon: Container(
         margin: const EdgeInsets.all(4),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.red,
           shape: BoxShape.circle,
         ),
         child: IconButton(
-          icon: const Icon(Icons.send, color: Color.fromARGB(255, 217, 3, 3), size: 22),
+          icon: const Icon(Icons.send,
+              color: Color.fromARGB(255, 217, 3, 3), size: 22),
           onPressed: () {
             final textValue = textController.text.trim();
             if (textValue.isNotEmpty) {
@@ -57,7 +61,8 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
           },
         ),
       ),
-      prefixIcon: Icon(Icons.pets, color: Color.fromARGB(255, 217, 3, 3), size: 24),
+      prefixIcon: const Icon(Icons.pets,
+          color: Color.fromARGB(255, 217, 3, 3), size: 24),
     );
 
     return Container(

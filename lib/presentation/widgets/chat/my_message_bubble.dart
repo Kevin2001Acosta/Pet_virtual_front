@@ -13,19 +13,18 @@ class MyMessageBubble extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          
           Flexible(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7, 
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 243, 84, 73),
+                color: const Color.fromARGB(255, 243, 84, 73),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(5), 
+                  bottomRight: Radius.circular(5),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -36,22 +35,23 @@ class MyMessageBubble extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Text(
                   message.text,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                   ),
-                  softWrap: true, 
+                  softWrap: true,
                   overflow: TextOverflow.visible,
                 ),
               ),
             ),
           ),
-          
-          const SizedBox(width: 8), 
-          
+
+          const SizedBox(width: 8),
+
           // Avatar de persona
           const CircleAvatar(
             radius: 16,

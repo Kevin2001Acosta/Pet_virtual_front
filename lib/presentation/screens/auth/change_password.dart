@@ -3,7 +3,7 @@ import 'package:yes_no_app/config/helpers/auth_service.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   final String token;
-  
+
   const ChangePasswordScreen({
     Key? key,
     required this.token,
@@ -15,7 +15,8 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -23,24 +24,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   Future<void> _changePassword() async {
     // Validaciones
-    if (_passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
+    if (_passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor completa todos los campos'))
-      );
+          const SnackBar(content: Text('Por favor completa todos los campos')));
       return;
     }
 
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden'))
-      );
+          const SnackBar(content: Text('Las contraseñas no coinciden')));
       return;
     }
 
     if (_passwordController.text.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La contraseña debe tener al menos 8 caracteres'))
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('La contraseña debe tener al menos 8 caracteres')));
       return;
     }
 
@@ -53,28 +52,29 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         _passwordController.text,
         widget.token,
       );
-      
+
       setState(() {
         _isLoading = false;
       });
 
       if (result['success'] == true) {
+        String name = result['data']['name'] ?? 'Usuario';
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Contraseña cambiada exitosamente'))
-        );
+            SnackBar(content: Text('Contraseña cambiada exitosamente $name')));
         Navigator.popUntil(context, (route) => route.isFirst);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['error'] ?? 'Error al cambiar la contraseña'))
-        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text(result['error'] ?? 'Error al cambiar la contraseña')));
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -89,22 +89,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0xFFF48A8A), 
-                  Color(0xFFFDEDED), 
-                ],  
+                  Color(0xFFF48A8A),
+                  Color(0xFFFDEDED),
+                ],
               ),
-            ),  
+            ),
           ),
-        
-          Center( 
+          Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.lock_reset,
-                   color: Color.fromARGB(255, 229, 47, 47),
-                   size: 80,
+                  const Icon(
+                    Icons.lock_reset,
+                    color: Color.fromARGB(255, 229, 47, 47),
+                    size: 80,
                   ),
                   const SizedBox(height: 1),
 
@@ -114,15 +114,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontWeight: FontWeight.w600, 
-                      fontSize: 32, 
+                      fontWeight: FontWeight.w600,
+                      fontSize: 32,
                       color: const Color.fromARGB(255, 0, 0, 0),
                       letterSpacing: 0.8,
-                      height: 1.2, 
+                      height: 1.2,
                       shadows: [
                         Shadow(
                           blurRadius: 2.0,
-                          color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.8),
+                          color: const Color.fromARGB(255, 250, 250, 250)
+                              .withOpacity(0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],
@@ -135,10 +136,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      fontSize: 16, 
+                      fontSize: 16,
                       color: Color.fromARGB(255, 0, 0, 0),
                       letterSpacing: 1.0,
-                      height: 1.2, 
+                      height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -154,10 +155,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.lock, color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(Icons.lock,
+                          color: Color.fromARGB(255, 95, 95, 95)),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: const Color.fromARGB(255, 95, 95, 95),
                         ),
                         onPressed: () {
@@ -186,10 +190,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.lock_outline, color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(Icons.lock_outline,
+                          color: Color.fromARGB(255, 95, 95, 95)),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                          _obscureConfirmPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: const Color.fromARGB(255, 95, 95, 95),
                         ),
                         onPressed: () {
@@ -216,7 +223,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _changePassword,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor:
+                              const Color.fromARGB(255, 229, 47, 47),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -229,7 +237,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           ),
                         ),
                         child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
                             : const Text('CAMBIAR CONTRASEÑA'),
                       ),
                     ),

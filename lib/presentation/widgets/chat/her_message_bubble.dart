@@ -8,9 +8,8 @@ class HerMessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   
-    final backgroundColor = Color.fromARGB(255, 218, 213, 204); 
-    
+    const backgroundColor = Color.fromARGB(255, 218, 213, 204);
+
     // Determinar si el fondo es oscuro o claro
     bool isDark(Color color) => color.computeLuminance() < 0.5;
     final textColor = isDark(backgroundColor) ? Colors.white : Colors.black;
@@ -18,33 +17,33 @@ class HerMessageBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start, 
+        mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           const CircleAvatar(
             radius: 16,
-            backgroundColor: Color.fromARGB(255, 218, 213, 204), 
+            backgroundColor: Color.fromARGB(255, 218, 213, 204),
             child: Text(
               '🐿️', // Emoji de ardilla
               style: TextStyle(fontSize: 14),
             ),
           ),
-          
-          const SizedBox(width: 8), 
-          
+
+          const SizedBox(width: 8),
+
           // Burbuja de mensaje
           Flexible(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7, 
+                maxWidth: MediaQuery.of(context).size.width * 0.7,
               ),
               decoration: BoxDecoration(
-                color: backgroundColor, 
+                color: backgroundColor,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(5), 
+                  topLeft: Radius.circular(5),
                   topRight: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20), 
+                  bottomRight: Radius.circular(20),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -55,14 +54,16 @@ class HerMessageBubble extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: MarkdownWidget(
                   data: message.text,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   config: MarkdownConfig(
                     configs: [
-                      PConfig(textStyle: TextStyle(
+                      PConfig(
+                          textStyle: TextStyle(
                         color: textColor,
                         fontSize: 16,
                       )),

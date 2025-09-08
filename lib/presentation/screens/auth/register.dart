@@ -76,71 +76,69 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                Color(0xFFF48A8A), 
-                Color(0xFFFDEDED), 
-                ],  
+                  Color(0xFFF48A8A),
+                  Color(0xFFFDEDED),
+                ],
               ),
-            ),  
+            ),
           ),
-          Center( 
+          Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                 Padding(
-                 padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween, 
-                        crossAxisAlignment: CrossAxisAlignment.center, 
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              'Crear cuenta',
-                              textAlign: TextAlign.center, 
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 34,
-                                color: Color.fromARGB(255, 10, 10, 10),
-                                letterSpacing: 1.0,
-                                height: 1.2,
-                                shadows: [
-                                  ui.Shadow(
-                                    blurRadius: 2.0,
-                                    color: Color.fromARGB(255, 255, 254, 254),
-                                    offset: Offset(2.0, 2.0),
-                                  ),
-                                ],
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Crear cuenta',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 34,
+                                  color: Color.fromARGB(255, 10, 10, 10),
+                                  letterSpacing: 1.0,
+                                  height: 1.2,
+                                  shadows: [
+                                    ui.Shadow(
+                                      blurRadius: 2.0,
+                                      color: Color.fromARGB(255, 255, 254, 254),
+                                      offset: Offset(2.0, 2.0),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-
-                          Transform.translate(
-                          offset: const Offset(70, 0),
-                            child: SizedBox(
-                                    width: 200, 
-                                    height: 200, 
-                                    child: Align(
-                                      alignment: Alignment.centerLeft, 
-                                      child: Transform.rotate(
-                                        angle: -0.2,
-                                        child: Image.asset(
-                                          'assets/images/register.png',
-                                         
-                                        ),
-                                      ),
+                            Transform.translate(
+                              offset: const Offset(70, 0),
+                              child: SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Transform.rotate(
+                                    angle: -0.2,
+                                    child: Image.asset(
+                                      'assets/images/register.png',
+                                    ),
                                   ),
+                                ),
                               ),
                             ),
-                            ],
-                          ),     
-                        ],
-                          ),
-                      ),
-                    const SizedBox(height: 20),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   //Campos
                   TextField(
@@ -169,7 +167,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.email, color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(Icons.email,
+                          color: Color.fromARGB(255, 95, 95, 95)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -187,8 +186,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: Icon(Icons.lock, color: Color.fromARGB(255, 95, 95, 95)),
-                      
+                      prefixIcon: const Icon(Icons.lock,
+                          color: Color.fromARGB(255, 95, 95, 95)),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureText
@@ -210,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 80),
-                  
+
                   // Botón de degistro
                   SizedBox(
                     width: double.infinity,
@@ -241,16 +240,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Botón de login
 
-                TextButton(
-                   onPressed: () => Navigator.pushNamed(context, '/login'),
+                  TextButton(
+                    onPressed: () => Navigator.pushNamed(context, '/login'),
                     child: RichText(
                       text: const TextSpan(
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 16,
-                          color: Colors.black, 
+                          color: Colors.black,
                         ),
-                        children:  [
+                        children: [
                           TextSpan(text: ' ¿Ya tienes cuenta? '),
                           TextSpan(
                             text: 'Inicia sesión',
@@ -263,7 +262,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
