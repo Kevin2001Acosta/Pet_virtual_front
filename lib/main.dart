@@ -93,7 +93,7 @@ class _MyAppState extends State<MyApp> {
             return ChatScreen(email: email);
           },
           '/forgot_password': (context) => const ForgotScreen(),
-          //'/changePassword': (context) {
+          '/changePassword': (context) {
             final args = ModalRoute.of(context)!.settings.arguments
                 as Map<String, dynamic>?;
             final token = args?['token'] ?? '';
