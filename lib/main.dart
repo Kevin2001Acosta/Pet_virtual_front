@@ -7,7 +7,6 @@ import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
-import 'package:uni_links/uni_links.dart';
 import 'dart:async';
 
 void main() => runApp(
@@ -31,11 +30,11 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _handleInitialUri();
-    _handleIncomingLinks();
+    /* _handleInitialUri();
+    _handleIncomingLinks(); */
   }
 
-  Future<void> _handleInitialUri() async {
+  /*  Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();
       if (uri != null) {
@@ -44,9 +43,9 @@ class _MyAppState extends State<MyApp> {
     } catch (e) {
       print('Failed to get initial uri: $e');
     }
-  }
+  } */
 
-  void _handleIncomingLinks() {
+  /* void _handleIncomingLinks() {
     _sub = uriLinkStream.listen((Uri? uri) {
       if (uri != null) {
         _handleDeepLink(uri);
@@ -54,9 +53,9 @@ class _MyAppState extends State<MyApp> {
     }, onError: (err) {
       print('Error on incoming link: $err');
     });
-  }
+  } */
 
-  void _handleDeepLink(Uri uri) {
+  /* void _handleDeepLink(Uri uri) {
     if (uri.scheme == 'mychatbot' && uri.host == 'changePassword') {
       final token = uri.queryParameters['token'];
       if (token != null) {
@@ -65,7 +64,7 @@ class _MyAppState extends State<MyApp> {
             arguments: {'token': token});
       }
     }
-  }
+  } */
 
   @override
   void dispose() {

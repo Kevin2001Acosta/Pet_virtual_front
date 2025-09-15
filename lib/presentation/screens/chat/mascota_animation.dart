@@ -23,7 +23,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
 
   final String _nombreMaquinaEstado = "Emociones";
 
-  
   SMIBool? _felizInput;
   SMIBool? _sorprendidoInput;
   SMIBool? _neutroInput;
@@ -48,48 +47,46 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
 
       final bytes = await rootBundle.load('assets/rive/gatiardilla.riv');
       final file = RiveFile.import(bytes);
-      
-      print('🎨 Artboards disponibles:');
-      final artboard = file.artboardByName(_nombreMaquinaEstado) ?? file.mainArtboard;
-      
-      if (artboard != null) {
-        _controller = StateMachineController.fromArtboard(
-          artboard,
-          _nombreMaquinaEstado,
-        );
 
-        if (_controller != null) {
-          artboard.addController(_controller!);
-         
-          for (final input in _controller!.inputs) {
-            if (input is SMIBool) {
-              switch (input.name) {
-                case 'Feliz':
-                  _felizInput = input;
-                  break;
-                case 'Sorprendido':
-                  _sorprendidoInput = input;
-                  break;
-                case 'Neutro':
-                  _neutroInput = input;
-                  break;
-              }
+      print('🎨 Artboards disponibles:');
+      final artboard =
+          file.artboardByName(_nombreMaquinaEstado) ?? file.mainArtboard;
+
+      _controller = StateMachineController.fromArtboard(
+        artboard,
+        _nombreMaquinaEstado,
+      );
+
+      if (_controller != null) {
+        artboard.addController(_controller!);
+
+        for (final input in _controller!.inputs) {
+          if (input is SMIBool) {
+            switch (input.name) {
+              case 'Feliz':
+                _felizInput = input;
+                break;
+              case 'Sorprendido':
+                _sorprendidoInput = input;
+                break;
+              case 'Neutro':
+                _neutroInput = input;
+                break;
             }
           }
-          _setNeutro();
         }
-
-        setState(() {
-          _mascotaArtboard = artboard;
-          _isLoading = false;
-        });
+        _setNeutro();
       }
+
+      setState(() {
+        _mascotaArtboard = artboard;
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error loading Rive file: $e');
       setState(() => _isLoading = false);
     }
   }
-
 
   void _setFeliz() {
     _felizInput?.value = true;
@@ -111,7 +108,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
 
   void _updateAnimation() {
     if (widget.isSpeaking) {
-      
       final random = DateTime.now().millisecond % 2;
       if (random == 0) {
         _setFeliz();

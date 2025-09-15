@@ -4,7 +4,7 @@ import 'package:yes_no_app/config/helpers/auth_service.dart';
 import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -42,8 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response['success'] == true) {
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/chat',
-            arguments: {'email': user.email});
+        Navigator.pushReplacementNamed(
+          context,
+          '/chat',
+          arguments: {'email': user.email},
+        );
       } else {
         if (!mounted) return;
         showErrorDialog(
@@ -74,10 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFFF48A8A),
-                  Color(0xFFFDEDED),
-                ],
+                colors: [Color(0xFFF48A8A), Color(0xFFFDEDED)],
               ),
             ),
           ),
@@ -102,8 +102,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       shadows: [
                         Shadow(
                           blurRadius: 2.0,
-                          color: const Color.fromARGB(255, 250, 250, 250)
-                              .withOpacity(0.8),
+                          color: const Color.fromARGB(
+                            255,
+                            250,
+                            250,
+                            250,
+                          ).withOpacity(0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],
@@ -130,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 40),
 
-//Campos
+                  //Campos
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -139,8 +143,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Color.fromARGB(134, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -159,8 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Color.fromARGB(136, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(Icons.lock,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       suffixIcon: IconButton(
@@ -208,8 +216,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _loginUser,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            229,
+                            47,
+                            47,
+                          ),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(

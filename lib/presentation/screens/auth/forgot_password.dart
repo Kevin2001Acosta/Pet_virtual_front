@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
-import 'package:yes_no_app/infrastructure/models/forgotPassword_model.dart';
-import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
 import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class ForgotScreen extends StatefulWidget {
-  const ForgotScreen({Key? key}) : super(key: key);
+  const ForgotScreen({super.key});
 
   @override
   State<ForgotScreen> createState() => _ForgotScreenState();
@@ -29,8 +27,9 @@ class _ForgotScreenState extends State<ForgotScreen> {
       _isLoading = true;
     });
     try {
-      final result =
-          await _authService.sendPasswordResetLink(_emailController.text);
+      final result = await _authService.sendPasswordResetLink(
+        _emailController.text,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -38,7 +37,8 @@ class _ForgotScreenState extends State<ForgotScreen> {
         showSuccessDialog(
           context: context,
           title: 'Correo enviado',
-          message: result['message'] ??
+          message:
+              result['message'] ??
               'Se ha enviado un enlace de recuperación a tu correo electrónico.',
           onPressed: () {
             Navigator.of(context).pop();
@@ -48,7 +48,8 @@ class _ForgotScreenState extends State<ForgotScreen> {
         showErrorDialog(
           context: context,
           title: 'Error',
-          message: result['error'] ??
+          message:
+              result['error'] ??
               'Ocurrió un error desconocido al enviar el correo',
         );
       }
@@ -75,10 +76,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFFF48A8A),
-                  Color(0xFFFDEDED),
-                ],
+                colors: [Color(0xFFF48A8A), Color(0xFFFDEDED)],
               ),
             ),
           ),
@@ -111,8 +109,12 @@ class _ForgotScreenState extends State<ForgotScreen> {
                       shadows: [
                         Shadow(
                           blurRadius: 2.0,
-                          color: const Color.fromARGB(255, 250, 250, 250)
-                              .withOpacity(0.8),
+                          color: const Color.fromARGB(
+                            255,
+                            250,
+                            250,
+                            250,
+                          ).withOpacity(0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],
@@ -142,8 +144,10 @@ class _ForgotScreenState extends State<ForgotScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -163,8 +167,12 @@ class _ForgotScreenState extends State<ForgotScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _sendResetLink,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            229,
+                            47,
+                            47,
+                          ),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -178,7 +186,8 @@ class _ForgotScreenState extends State<ForgotScreen> {
                         ),
                         child: _isLoading
                             ? const CircularProgressIndicator(
-                                color: Colors.white)
+                                color: Colors.white,
+                              )
                             : const Text('ENVIAR ENLACE'),
                       ),
                     ),

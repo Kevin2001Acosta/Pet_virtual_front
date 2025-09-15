@@ -5,7 +5,7 @@ import 'package:yes_no_app/presentation/widgets/alert.dart';
 import 'dart:ui' as ui;
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -75,10 +75,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFFF48A8A),
-                  Color(0xFFFDEDED),
-                ],
+                colors: [Color(0xFFF48A8A), Color(0xFFFDEDED)],
               ),
             ),
           ),
@@ -149,8 +146,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Color.fromARGB(137, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(Icons.person_outline,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -167,8 +166,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -186,8 +187,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         fontFamily: 'Poppins',
                         color: Colors.black54,
                       ),
-                      prefixIcon: const Icon(Icons.lock,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscureText
@@ -219,8 +222,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _registerUser,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            229,
+                            47,
+                            47,
+                          ),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -239,7 +246,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 5),
 
                   // Botón de login
-
                   TextButton(
                     onPressed: () => Navigator.pushNamed(context, '/login'),
                     child: RichText(

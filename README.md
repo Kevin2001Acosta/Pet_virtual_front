@@ -1,4 +1,4 @@
-# yes_no_app
+# flutter_prueba
 
 A new Flutter project.
 
