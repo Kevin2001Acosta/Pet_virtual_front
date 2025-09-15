@@ -199,3 +199,4 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     );
   }
 }
+

@@ -10,7 +10,7 @@ import '../../../domain/entities/message.dart';
 class ChatScreen extends StatelessWidget {
   final String email;
   const ChatScreen({super.key, required this.email});
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,7 +109,7 @@ class _ChatViewState extends State<_ChatView> {
             color: Color.fromARGB(255, 209, 208, 208),
           ),
 
-          // ÁREA DE CHAT 
+          // ÁREA DE CHAT
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -138,7 +138,7 @@ class _ChatViewState extends State<_ChatView> {
 
                   // CAMPO DE TEXTO
                   MessageFieldBox(
-                    onValue: (value) => 
+                    onValue: (value) =>
                         chatProvider.sendMessage(value, widget.email),
                   ),
                 ],

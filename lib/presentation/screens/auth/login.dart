@@ -4,7 +4,7 @@ import 'package:yes_no_app/config/helpers/auth_service.dart';
 import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -42,9 +42,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response['success'] == true) {
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/chat',
-            arguments: {'email': user.email}
-            );
+        Navigator.pushReplacementNamed(
+          context,
+          '/chat',
+          arguments: {'email': user.email},
+        );
       } else {
         if (!mounted) return;
         showErrorDialog(
@@ -67,71 +69,72 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     body: Stack(
+      body: Stack(
         children: [
-
           // Fondo
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                Color(0xFFF48A8A), 
-                Color(0xFFFDEDED), 
-              ],
+                colors: [Color(0xFFF48A8A), Color(0xFFFDEDED)],
               ),
             ),
-          ),    
+          ),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                //Titulo
-                Text(
-                  'Mascota virtual',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontWeight: FontWeight.w600, 
-                    fontSize: 36, 
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                    letterSpacing: 1.0,
-                    height: 1.2, 
-                    shadows: [
-                      Shadow(
-                        blurRadius: 2.0,
-                        color: Color.fromARGB(255, 250, 250, 250).withOpacity(0.8),
-                        offset: const Offset(2.0, 2.0),
-                      ),
-                    ],
+                  //Titulo
+                  Text(
+                    'Mascota virtual',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 36,
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      letterSpacing: 1.0,
+                      height: 1.2,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 2.0,
+                          color: const Color.fromARGB(
+                            255,
+                            250,
+                            250,
+                            250,
+                          ).withOpacity(0.8),
+                          offset: const Offset(2.0, 2.0),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              //Imagen 
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color.fromARGB(255, 233, 80, 70),
-                    border: Border.all(color: Colors.white, width: 5), 
-                  ),
-                  padding: const EdgeInsets.all(8),
+                  //Imagen
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color.fromARGB(255, 233, 80, 70),
+                      border: Border.all(color: Colors.white, width: 5),
+                    ),
+                    padding: const EdgeInsets.all(8),
                     child: ClipOval(
                       child: Image.asset(
                         'assets/images/mascota.png',
-                        width: 180, 
-                        height: 180, 
+                        width: 180,
+                        height: 180,
                         fit: BoxFit.cover,
                       ),
                     ),
-                    ),
-                   const SizedBox(height: 40),
+                  ),
+                  const SizedBox(height: 40),
 
-//Campos               
+                  //Campos
                   TextField(
                     controller: _emailController,
                     decoration: InputDecoration(
@@ -140,8 +143,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Color.fromARGB(134, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(Icons.email,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.email,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       border: OutlineInputBorder(
@@ -160,8 +165,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         fontFamily: 'Poppins',
                         color: Color.fromARGB(136, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(Icons.lock,
-                          color: Color.fromARGB(255, 95, 95, 95)),
+                      prefixIcon: const Icon(
+                        Icons.lock,
+                        color: Color.fromARGB(255, 95, 95, 95),
+                      ),
                       filled: true,
                       fillColor: Colors.white,
                       suffixIcon: IconButton(
@@ -178,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       border: OutlineInputBorder(
-                       borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
@@ -191,9 +198,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text(
                         'Recuperar contraseña',
                         style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 16, 
-                            color: Colors.black, ),
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                   ),
@@ -208,8 +216,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _loginUser,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 229, 47, 47),
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            229,
+                            47,
+                            47,
+                          ),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
                           shape: RoundedRectangleBorder(
@@ -235,9 +247,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 16,
-                          color: Colors.black, 
+                          color: Colors.black,
                         ),
-                        children:  [
+                        children: [
                           TextSpan(text: '¿No tienes cuenta? '),
                           TextSpan(
                             text: 'Regístrate',
