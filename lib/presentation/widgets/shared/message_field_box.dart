@@ -31,7 +31,7 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
     );
 
     final inputDecoration = InputDecoration(
-      hintText: 'Pregúntale a tu mascota...',
+      hintText: 'Habla con tu mascota...',
       hintStyle: TextStyle(color: Colors.grey[600], fontSize: 16),
       enabledBorder: outlineInputBorder,
       focusedBorder: outlineInputBorder.copyWith(

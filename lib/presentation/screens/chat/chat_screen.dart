@@ -14,36 +14,40 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        /*
-        leading: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: CircleAvatar(
-            backgroundColor: const Color.fromARGB(0, 250, 2, 2),
-            child: Image.asset(
-              'assets/images/mascota.png',
-              fit: BoxFit.contain,
+      backgroundColor: const Color(0xFFF9F9F9), 
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+          child: AppBar(
+            backgroundColor: const Color(0xFFF87070), 
+            elevation: 4,
+            title: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.pets, color: Colors.white, size: 24),
+                SizedBox(width: 8),
+                Text(
+                  'Mascota',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
+            centerTitle: true,
           ),
         ),
-        */
-        
-        title: const Text(
-          'Mascota',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        
-        centerTitle: true,
-        elevation: 1, 
-        backgroundColor: Color.fromARGB(255, 247, 38, 38)   ),
+      ),
       body: _ChatView(email: email),
     );
   }
 }
-
 
 class _ChatView extends StatefulWidget {
   final String email;
@@ -80,42 +84,23 @@ class _ChatViewState extends State<_ChatView> {
       child: Column(
         children: [
           // ANIMACIÓN MASCOTA
-          /*
-          Consumer<ChatProvider>(
-            builder: (context, chatProvider, child) {
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                color: Colors.transparent,
-                height: 250,
-                //constraints: const BoxConstraints(maxHeight: 450), //Cambian el tamaño recuadro
-                child: Center(
-                  child: MascotaAnimation(
-                    isSpeaking: chatProvider.isLoading,
-                    size: 200//Tamaño animacion
+        Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  height: 200, 
+                  width: double.infinity, 
+                  child: FittedBox(
+                    fit: BoxFit.contain, 
+                    child: MascotaAnimation(
+                      isSpeaking: chatProvider.isLoading,
+                      size: 200, 
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-*/
+                );
+              },
+            ),
 
-Consumer<ChatProvider>(
-  builder: (context, chatProvider, child) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration( // ¡Borde temporal para debug!
-        border: Border.all(color: Colors.red, width: 2),
-      ),
-      height: 250,
-      child: Center(
-        child: MascotaAnimation(
-          isSpeaking: chatProvider.isLoading,
-          size: 200,
-        ),
-      ),
-    );
-  },
-),
 
           // DIVIDER
           const Divider(
@@ -138,6 +123,11 @@ Consumer<ChatProvider>(
                             controller: chatProvider.chatScrollController,
                             itemCount: chatProvider.messageList.length,
                             itemBuilder: (context, index) {
+                              
+                            if (index >= chatProvider.messageList.length) {
+                              return const SizedBox.shrink(); 
+                            }
+
                               final message = chatProvider.messageList[index];
                               return message.fromWho == FromWho.me
                                   ? MyMessageBubble(message: message)

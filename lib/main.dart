@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             return ChatScreen(email: email);
           },
           '/forgot_password': (context) => const ForgotScreen(),
-          '/changePassword': (context) => const ChangePasswordScreen(),
+          //'/changePassword': (context) => const ChangePasswordScreen(),
         },
       ),
     );
