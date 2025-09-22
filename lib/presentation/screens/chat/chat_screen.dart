@@ -6,6 +6,7 @@ import 'package:yes_no_app/presentation/widgets/chat/my_message_bubble.dart';
 import 'package:yes_no_app/presentation/widgets/shared/message_field_box.dart';
 import 'package:yes_no_app/presentation/screens/chat/mascota_animation.dart';
 import '../../../domain/entities/message.dart';
+import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class ChatScreen extends StatelessWidget {
   final String email;
@@ -14,39 +15,54 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9F9), 
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(70),
-        child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(25),
-            bottomRight: Radius.circular(25),
-          ),
-          child: AppBar(
-            backgroundColor: const Color(0xFFF87070), 
-            elevation: 4,
-            title: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.pets, color: Colors.white, size: 24),
-                SizedBox(width: 8),
-                Text(
-                  'Mascota',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white, 
+      appBar: _buildAppBar(context), 
       body: _ChatView(email: email),
     );
   }
+
+  // AppBar 
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: const Color.fromARGB(255, 243, 84, 73),
+      elevation: 3,
+      leading: IconButton(
+        icon: const Icon(Icons.exit_to_app, color: Color.fromARGB(255, 255, 254, 254)),
+        onPressed: () {
+          _showLogoutDialog(context);
+        },
+      ),
+      centerTitle: true,
+      title: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.pets, color: Color.fromARGB(255, 254, 254, 254), size: 28),
+          SizedBox(width: 12),
+          Text(
+            'Mascota Virtual',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Color.fromARGB(255, 255, 254, 254),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Diálogo para confirmar cierre de sesión
+void _showLogoutDialog(BuildContext context) {
+  showInfoDialog(
+    context: context,
+    title: 'Cerrar sesión',
+    message: '¿Estás seguro de que quieres cerrar sesión?',
+    buttonText: 'Cancelar',
+    onPressed: () {
+    },
+  );
+ }
 }
 
 class _ChatView extends StatefulWidget {
@@ -80,35 +96,46 @@ class _ChatViewState extends State<_ChatView> {
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
 
-    return SafeArea(
+    return Container(
+      color: Colors.white, 
       child: Column(
         children: [
-          // ANIMACIÓN MASCOTA
-        Consumer<ChatProvider>(
-                builder: (context, chatProvider, child) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  height: 200, 
-                  width: double.infinity, 
-                  child: FittedBox(
-                    fit: BoxFit.contain, 
-                    child: MascotaAnimation(
-                      isSpeaking: chatProvider.isLoading,
-                      size: 200, 
+          //Mascota animada
+          Consumer<ChatProvider>(
+            builder: (context, chatProvider, child) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 200,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        border: Border.all(
+                            color: Colors.red, 
+                            width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: MascotaAnimation(
+                          isSpeaking: chatProvider.isLoading,
+                          size: 160,
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-
-
-          // DIVIDER
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color.fromARGB(255, 209, 208, 208),
+                  ],
+                ),
+              );
+            },
           ),
-
           // ÁREA DE CHAT
           Expanded(
             child: Padding(
@@ -118,15 +145,18 @@ class _ChatViewState extends State<_ChatView> {
                   // MENSAJES
                   Expanded(
                     child: _loading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFF87070)),
+                            ),
+                          )
                         : ListView.builder(
                             controller: chatProvider.chatScrollController,
                             itemCount: chatProvider.messageList.length,
                             itemBuilder: (context, index) {
-                              
-                            if (index >= chatProvider.messageList.length) {
-                              return const SizedBox.shrink(); 
-                            }
+                              if (index >= chatProvider.messageList.length) {
+                                return const SizedBox.shrink(); 
+                              }
 
                               final message = chatProvider.messageList[index];
                               return message.fromWho == FromWho.me
@@ -137,9 +167,12 @@ class _ChatViewState extends State<_ChatView> {
                   ),
 
                   // CAMPO DE TEXTO
-                  MessageFieldBox(
-                    onValue: (value) =>
-                        chatProvider.sendMessage(value, widget.email),
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: MessageFieldBox(
+                      onValue: (value) =>
+                          chatProvider.sendMessage(value, widget.email),
+                    ),
                   ),
                 ],
               ),
