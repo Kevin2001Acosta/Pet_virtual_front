@@ -96,18 +96,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w600,
                       fontSize: 36,
-                      color: const Color.fromARGB(255, 0, 0, 0),
+                      color: const Color.fromARGB(255, 229,47, 47),
+                      //color: const Color.fromARGB(255, 0, 0, 0),
                       letterSpacing: 1.0,
                       height: 1.2,
                       shadows: [
                         Shadow(
-                          blurRadius: 2.0,
-                          color: const Color.fromARGB(
-                            255,
-                            250,
-                            250,
-                            250,
-                          ).withOpacity(0.8),
+                          blurRadius: 5.0,
+                          color: const Color.fromARGB(255, 19, 19, 19).withOpacity(0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],

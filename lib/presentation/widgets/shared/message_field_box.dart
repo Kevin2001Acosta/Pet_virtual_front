@@ -50,11 +50,8 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
           shape: BoxShape.circle,
         ),
         child: IconButton(
-          icon: const Icon(
-            Icons.send,
-            color: Color.fromARGB(255, 217, 3, 3),
-            size: 22,
-          ),
+          icon: const Icon(Icons.send,
+              color: Color.fromARGB(255, 247, 245, 245), size: 22),
           onPressed: () {
             final textValue = textController.text.trim();
             if (textValue.isNotEmpty) {

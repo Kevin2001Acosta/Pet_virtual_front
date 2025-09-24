@@ -24,10 +24,7 @@ class HerMessageBubble extends StatelessWidget {
           const CircleAvatar(
             radius: 16,
             backgroundColor: Color.fromARGB(255, 218, 213, 204), 
-            child: Text(
-              '🐿️', // Emoji de ardilla
-              style: TextStyle(fontSize: 14),
-            ),
+            backgroundImage: AssetImage('assets/images/mascota.png'),
           ),
           
           const SizedBox(width: 8), 
@@ -57,8 +54,8 @@ class HerMessageBubble extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: message.fromWho == FromWho.typing
-                    ? _buildTypingIndicator() // Mostrar puntos animados
-                    : MarkdownWidget( // Mostrar mensaje normal
+                    ? _buildTypingIndicator() 
+                    : MarkdownWidget(
                         data: message.text,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
@@ -94,7 +91,7 @@ class HerMessageBubble extends StatelessWidget {
   }
 }
 
-// Widget para los puntos animados (debes agregar esta clase)
+// Widget para los puntos animados 
 class TypingDot extends StatefulWidget {
   final int delay;
 

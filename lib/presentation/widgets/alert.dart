@@ -140,30 +140,5 @@ void showInfoDialog({
   );
 }
 
-// SnackBar de Éxito
-void showSuccessSnackBar({
-  required BuildContext context,
-  required String message,
-  Duration duration = const Duration(seconds: 4),
-}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Row(
-        children: [
-          const Icon(Icons.check_circle, color: Colors.white),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(message, style: const TextStyle(fontFamily: 'Poppins')),
-          ),
-        ],
-      ),
-      duration: duration,
-      backgroundColor: const Color.fromARGB(255, 46, 229, 47),
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-  );
-}
+
 
