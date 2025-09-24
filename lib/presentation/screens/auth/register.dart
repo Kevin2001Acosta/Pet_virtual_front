@@ -40,11 +40,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
+      
+      print('📦 Datos del usuario: ${user.toJson()}');
 
       final authService = AuthService();
       final response = await authService.register(user);
 
       if (response['success'] == true) {
+        showSuccessDialog(
+          context: context,
+          title: 'Éxito',
+          message: response['message'] ?? 'Cuenta resgistrada con éxito',
+        );
         Navigator.pushReplacementNamed(context, '/login');
       } else {
         showErrorDialog(
@@ -54,6 +61,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } catch (e) {
+       print('Error completo: $e');
       showErrorDialog(
         context: context,
         title: 'Error',

@@ -17,6 +17,27 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //Mostrar el escribiendo
+  void _startTyping() {
+    final typingMessage = Message(
+      text: 'Escribiendo...', 
+      fromWho: FromWho.typing, 
+    );
+    messageList.add(typingMessage);
+    notifyListeners();
+    moveScrollToBottom();
+  }
+
+  // Ocultar "escribiendo"
+  void _stopTyping() {
+    if (messageList.isNotEmpty && messageList.last.fromWho == FromWho.typing) {
+      messageList.removeLast();
+      notifyListeners();
+    }
+  }
+
+
+
   Future<void> sendMessage(String text, String email) async {
     if (text.isEmpty) return;
     final newMessage = Message(text: text, fromWho: FromWho.me);
@@ -25,20 +46,31 @@ class ChatProvider extends ChangeNotifier {
      notifyListeners();
     
     _setLoading(true); 
+
+     _startTyping();
+
     moveScrollToBottom();
+
     herReply(text, email);
+
   }
 
-  // petición
+  // Petición
   Future<void> herReply(String text, String email) async {
     _setLoading(true); 
 
     try {
       final herMessage = await getIAAnswer.getAnswer(text, email);
+
+      _stopTyping();
+
       messageList.add(herMessage);
       print(herMessage.text); // ignore: avoid_print
       print(herMessage.imageUrl); // ignore: avoid_print
     } catch (e) {
+
+      _stopTyping();
+
       messageList.add(Message(
         text: '¡Ups! No pude responder. Error: ${e.toString()}',
         fromWho: FromWho.hers,

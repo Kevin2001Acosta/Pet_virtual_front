@@ -20,12 +20,14 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   Artboard? _mascotaArtboard;
   StateMachineController? _controller;
   bool _isLoading = true;
+  bool _hasError = false;
 
+  final String _nombreArtboard = "Artboard";
   final String _nombreMaquinaEstado = "Emociones";
 
   SMIBool? _felizInput;
   SMIBool? _sorprendidoInput;
-  SMIBool? _neutroInput;
+  SMIBool? _tristeInput;
 
   @override
   void initState() {
@@ -43,14 +45,13 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
 
   Future<void> _loadRiveFile() async {
     try {
-      print('🔄 Cargando archivo Rive...');
-
-      final bytes = await rootBundle.load('assets/rive/gatiardilla.riv');
+      print("Cargando archivo Rive...");
+      final bytes = await rootBundle.load('assets/rive/mascota.riv');
       final file = RiveFile.import(bytes);
-
-      print('🎨 Artboards disponibles:');
       final artboard =
-          file.artboardByName(_nombreMaquinaEstado) ?? file.mainArtboard;
+          file.artboardByName(_nombreArtboard) ?? file.mainArtboard;
+
+      print("✅ Artboard encontrado: ${artboard.name}");
 
       _controller = StateMachineController.fromArtboard(
         artboard,
@@ -60,7 +61,9 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
       if (_controller != null) {
         artboard.addController(_controller!);
 
+        print("✅ Controlador cargado. Inputs encontrados:");
         for (final input in _controller!.inputs) {
+          print("   - ${input.name} (${input.runtimeType})");
           if (input is SMIBool) {
             switch (input.name) {
               case 'Feliz':
@@ -69,13 +72,15 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
               case 'Sorprendido':
                 _sorprendidoInput = input;
                 break;
-              case 'Neutro':
-                _neutroInput = input;
+              case 'Triste':
+                _tristeInput = input;
                 break;
             }
           }
         }
-        _setNeutro();
+        _setRespirar();
+      } else {
+        print("⚠️ No se encontró la máquina de estados $_nombreMaquinaEstado");
       }
 
       setState(() {
@@ -83,27 +88,44 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading Rive file: $e');
-      setState(() => _isLoading = false);
+      print("❌ Error cargando Rive: $e");
+      _setError();
     }
   }
 
+  void _setError() {
+    setState(() {
+      _isLoading = false;
+      _hasError = true;
+    });
+  }
+
   void _setFeliz() {
+    print("😃 Activando estado: Feliz");
     _felizInput?.value = true;
     _sorprendidoInput?.value = false;
-    _neutroInput?.value = false;
+    _tristeInput?.value = false;
   }
 
   void _setSorprendido() {
+    print("😮 Activando estado: Sorprendido");
     _felizInput?.value = false;
     _sorprendidoInput?.value = true;
-    _neutroInput?.value = false;
+    _tristeInput?.value = false;
   }
 
-  void _setNeutro() {
+  void _setTriste() {
+    print("😢 Activando estado: Triste");
     _felizInput?.value = false;
     _sorprendidoInput?.value = false;
-    _neutroInput?.value = true;
+    _tristeInput?.value = true;
+  }
+
+  void _setRespirar() {
+    print("🌬 Volviendo al estado base: Respirar");
+    _felizInput?.value = false;
+    _sorprendidoInput?.value = false;
+    _tristeInput?.value = false;
   }
 
   void _updateAnimation() {
@@ -115,7 +137,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
         _setSorprendido();
       }
     } else {
-      _setNeutro();
+      _setRespirar();
     }
   }
 
@@ -135,17 +157,38 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
       );
     }
 
+    if (_hasError || _mascotaArtboard == null) {
+      return _buildErrorWidget();
+    }
+
     return SizedBox(
       width: widget.size,
       height: widget.size,
-      child: _mascotaArtboard != null
-          ? Rive(
-              artboard: _mascotaArtboard!,
-              //fit: BoxFit.contain,
-              fit: BoxFit.cover,
-              alignment: Alignment.center,
-            )
-          : const Icon(Icons.error, color: Color.fromARGB(255, 247, 12, 4)),
+      child: Rive(artboard: _mascotaArtboard!, fit: BoxFit.contain),
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, color: Colors.red, size: 40),
+            SizedBox(height: 8),
+            Text(
+              'Error loading animation',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
