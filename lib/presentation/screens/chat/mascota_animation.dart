@@ -22,7 +22,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   bool _isLoading = true;
   bool _hasError = false;
 
-  final String _nombreArtboard = "Artboard"; 
+  final String _nombreArtboard = "Artboard";
   final String _nombreMaquinaEstado = "Emociones";
 
   SMIBool? _felizInput;
@@ -48,13 +48,8 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
       print("Cargando archivo Rive...");
       final bytes = await rootBundle.load('assets/rive/mascota.riv');
       final file = RiveFile.import(bytes);
-      final artboard = file.artboardByName(_nombreArtboard) ?? file.mainArtboard;
-
-      if (artboard == null) {
-        print("⚠️ No se encontró el artboard $_nombreArtboard");
-        _setError();
-        return;
-      }
+      final artboard =
+          file.artboardByName(_nombreArtboard) ?? file.mainArtboard;
 
       print("✅ Artboard encontrado: ${artboard.name}");
 
@@ -83,7 +78,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
             }
           }
         }
-        _setRespirar(); 
+        _setRespirar();
       } else {
         print("⚠️ No se encontró la máquina de estados $_nombreMaquinaEstado");
       }
@@ -92,7 +87,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
         _mascotaArtboard = artboard;
         _isLoading = false;
       });
-
     } catch (e) {
       print("❌ Error cargando Rive: $e");
       _setError();
@@ -170,10 +164,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     return SizedBox(
       width: widget.size,
       height: widget.size,
-      child: Rive(
-        artboard: _mascotaArtboard!,
-        fit: BoxFit.contain,
-      ),
+      child: Rive(artboard: _mascotaArtboard!, fit: BoxFit.contain),
     );
   }
 
@@ -191,12 +182,13 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
           children: [
             Icon(Icons.error_outline, color: Colors.red, size: 40),
             SizedBox(height: 8),
-            Text('Error loading animation', 
-                 style: TextStyle(color: Colors.red, fontSize: 12)),
+            Text(
+              'Error loading animation',
+              style: TextStyle(color: Colors.red, fontSize: 12),
+            ),
           ],
         ),
       ),
     );
   }
 }
-

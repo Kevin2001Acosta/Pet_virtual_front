@@ -7,15 +7,16 @@ import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
+
 import 'dart:async';
+import 'package:app_links/app_links.dart';
 
 void main() => runApp(
-      MultiProvider(providers: [
-        ChangeNotifierProvider(
-          create: (_) => ChatProvider(),
-        ),
-      ], child: const MyApp()),
-    );
+  MultiProvider(
+    providers: [ChangeNotifierProvider(create: (_) => ChatProvider())],
+    child: const MyApp(),
+  ),
+);
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -26,45 +27,62 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   StreamSubscription? _sub;
+  final AppLinks _appLinks = AppLinks();
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
-    /* _handleInitialUri();
-    _handleIncomingLinks(); */
+    _handleInitialLink();
+    _listenToLinks();
   }
 
-  /*  Future<void> _handleInitialUri() async {
+  Future<void> _handleInitialLink() async {
     try {
-      final uri = await getInitialUri();
-      if (uri != null) {
-        _handleDeepLink(uri);
+      // getInitialLinkUri es el nuevo método para obtener enlace inicial
+      final Uri? initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _onAppLink(initialUri, coldStart: true);
       }
     } catch (e) {
-      print('Failed to get initial uri: $e');
+      debugPrint('Error al obtener enlace inicial: $e');
+      // Puedes capturar o ignorar según lo consideres
     }
-  } */
+  }
 
-  /* void _handleIncomingLinks() {
-    _sub = uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        _handleDeepLink(uri);
-      }
-    }, onError: (err) {
-      print('Error on incoming link: $err');
-    });
-  } */
+  void _listenToLinks() {
+    _sub = _appLinks.uriLinkStream.listen(
+      (Uri uri) {
+        _onAppLink(uri, coldStart: false);
+      },
+      onError: (err) {
+        debugPrint('Error en uriLinkStream: $err');
+      },
+    );
+  }
 
-  /* void _handleDeepLink(Uri uri) {
-    if (uri.scheme == 'mychatbot' && uri.host == 'changePassword') {
+  void _onAppLink(Uri uri, {required bool coldStart}) {
+    debugPrint('Received link (coldStart=$coldStart): $uri');
+    debugPrint(uri.scheme);
+    debugPrint(uri.host);
+    debugPrint(uri.queryParameters.toString());
+    //debugPrint((uri.scheme == 'mychatbot').toString());
+    debugPrint((uri.host == 'changepassword').toString());
+
+    // Verifica esquema y host
+    if (uri.scheme == 'mychatbot' && uri.host == 'changepassword') {
+      debugPrint('Navegando a cambiar contraseña');
       final token = uri.queryParameters['token'];
       if (token != null) {
-        // Usa `pushReplacementNamed` para que no se pueda volver a la pantalla anterior
-        Navigator.of(context).pushReplacementNamed('/changePassword',
-            arguments: {'token': token});
+        _navigatorKey.currentState?.pushNamedAndRemoveUntil(
+          '/changePassword',
+          (route) => false,
+          arguments: {'token': token},
+        );
       }
     }
-  } */
+    // Aquí puedes manejar más hosts/rutas si necesitas
+  }
 
   @override
   void dispose() {
@@ -75,10 +93,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => ChatProvider())],
       child: MaterialApp(
+        navigatorKey: _navigatorKey,
         title: 'Mascota Virtual',
         debugShowCheckedModeBanner: false,
         theme: AppTheme(selectedColor: 0).theme(),
@@ -87,15 +104,17 @@ class _MyAppState extends State<MyApp> {
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/chat': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments
-                as Map<String, dynamic>?;
+            final args =
+                ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>?;
             final email = args?['email'] ?? '';
             return ChatScreen(email: email);
           },
           '/forgot_password': (context) => const ForgotScreen(),
           '/changePassword': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments
-                as Map<String, dynamic>?;
+            final args =
+                ModalRoute.of(context)!.settings.arguments
+                    as Map<String, dynamic>?;
             final token = args?['token'] ?? '';
             return ChangePasswordScreen(token: token);
           },
