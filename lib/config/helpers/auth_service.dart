@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:yes_no_app/config/constants.dart';
 import 'package:yes_no_app/infrastructure/models/auth_model.dart';
+import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
 
 class AuthService {
   final Dio _dio = Dio(
@@ -22,6 +23,7 @@ class AuthService {
       return {
         'success': true,
         'data': response.data,
+        'message': response.data['message'],
       };
     } on DioException catch (e) {
       print('Error en registro: ${e.response?.data ?? e.message}');
@@ -43,6 +45,17 @@ class AuthService {
 
       print('Respuesta de login: ${response.data}');
 
+      if (response.data['token'] != null) {
+        await SecureStorageService.saveToken(response.data['token']);
+        await SecureStorageService.saveUserInfo(
+          email: response.data['user']['email'],
+          name: response.data['user']['name'],
+          userId: response.data['user']['id'].toString(),
+        );
+        
+        print('Token guardado exitosamente');
+      }
+
       return {
         'success': true,
         'data': response.data,
@@ -57,7 +70,23 @@ class AuthService {
     }
   }
 
-// Enviar correo de recuperacion de contraseña
+  // Método para logout
+  Future<void> logout() async {
+    await SecureStorageService.clearAll();
+    print('Sesión cerrada - datos eliminados');
+  }
+
+  // Verificar autenticación
+  Future<bool> isAuthenticated() async {
+    return await SecureStorageService.isLoggedIn();
+  }
+
+  //  Obtener token actual
+  Future<String?> getCurrentToken() async {
+    return await SecureStorageService.getToken();
+  }
+
+  // Enviar correo de recuperacion de contraseña
   Future<Map<String, dynamic>> sendPasswordResetLink(String email) async {
     try {
       final response = await _dio.post(
@@ -96,7 +125,7 @@ class AuthService {
     }
   }
 
-//Cambiar contraseña
+  // Cambiar contraseña
   Future<Map<String, dynamic>> resetPassword(
       String password, String token) async {
     try {
@@ -140,4 +169,4 @@ class AuthService {
 
     return 'Error de conexión: ${e.message}';
   }
-}
+} 

@@ -15,10 +15,13 @@ class GetIAAnswer {
     final response = await _dio.post('/chatbot/chat', data: {
       'message': text,
       'email': email,
+      
     });
 
     final ResponseIAModel responseIAModel =
         ResponseIAModel.fromJsonMap(response.data);
+
+    print("🎭 Emoción extraída: ${responseIAModel.emotion}");
 
     return responseIAModel.toMessageEntity();
   }
@@ -36,12 +39,14 @@ class GetIAAnswer {
       // Mensaje del usuario
       messages.add(Message(
         text: conv['question'] ?? '',
+        emotion: 'respirar',
         fromWho: FromWho.me,
       ));
       // Respuesta del bot
       messages.add(Message(
         text: conv['answer'] ?? '',
         imageUrl: conv['imageUrl'],
+        emotion: conv['emotion'] ?? 'respirar',
         fromWho: FromWho.hers,
       ));
     }

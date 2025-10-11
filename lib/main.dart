@@ -7,6 +7,9 @@ import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
+import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
+import 'package:yes_no_app/presentation/screens/auth/splashScreen.dart';
+import 'package:yes_no_app/presentation/screens/chat/bienestar_emocional.dart';
 import 'dart:async';
 
 void main() => runApp(
@@ -83,8 +86,9 @@ class _MyAppState extends State<MyApp> {
         title: 'Mascota Virtual',
         debugShowCheckedModeBanner: false,
         theme: AppTheme(selectedColor: 0).theme(),
-        initialRoute: '/login',
+        initialRoute: '/splash',
         routes: {
+          '/splash': (context) => SplashScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/chat': (context) {
@@ -100,6 +104,7 @@ class _MyAppState extends State<MyApp> {
             final token = args?['token'] ?? '';
             return ChangePasswordScreen(token: token);
           },
+          '/emotional_wellness': (context) => BienestarEmocionalScreen(),
         },
       ),
     );

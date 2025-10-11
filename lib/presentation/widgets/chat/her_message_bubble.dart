@@ -21,12 +21,36 @@ class HerMessageBubble extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start, 
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          const CircleAvatar(
-            radius: 16,
-            backgroundColor: Color.fromARGB(255, 218, 213, 204), 
-            backgroundImage: AssetImage('assets/images/mascota.png'),
+          Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color.fromARGB(255, 218, 213, 204),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/mascota.png',
+                  width: 29,
+                  height: 29,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => 
+                    const Icon(
+                      Icons.pets,
+                      color: Color.fromARGB(255, 218, 213, 204),
+                      size: 15,
+                    ),
+                ),
+              ),
+            ),
           ),
-          
           const SizedBox(width: 8), 
           
           // Burbuja de mensaje
@@ -145,7 +169,7 @@ class _TypingDotState extends State<TypingDot> with SingleTickerProviderStateMix
             width: 8,
             height: 8,
             decoration: const BoxDecoration(
-              color: Colors.grey, // Color de los puntos
+              color: Colors.grey, 
               shape: BoxShape.circle,
             ),
           ),
@@ -155,35 +179,3 @@ class _TypingDotState extends State<TypingDot> with SingleTickerProviderStateMix
   }
 }
 
-/* 
-class _ImageBubble extends StatelessWidget {
-  final String imageUrl;
-
-  const _ImageBubble({required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(15),
-      child: Image.network(
-        imageUrl,
-        width: size.width * 0.5,
-        fit: BoxFit.cover,
-        height: 150,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
-      ),
-    );
-  }
-} */
-
-// TODO: algo por hacer
-//! cosas importantes
-//? algo debe ser revisado o tengo una pregunta
-//* algo es importante pero no necesita atencion inmediata

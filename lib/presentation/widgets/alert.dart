@@ -98,7 +98,9 @@ void showInfoDialog({
   required String title,
   required String message,
   String buttonText = 'Entendido',
+  String? secondaryButtonText, 
   VoidCallback? onPressed,
+  VoidCallback? onSecondaryPressed, 
 }) {
   showDialog(
     context: context,
@@ -122,15 +124,34 @@ void showInfoDialog({
       ),
       content: Text(message, style: const TextStyle(fontFamily: 'Poppins')),
       actions: [
+        if (secondaryButtonText != null)
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              onSecondaryPressed?.call();
+            },
+            child: Text(
+              secondaryButtonText,
+              style: const TextStyle(
+                color: Colors.red, 
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        // Botón principal
         TextButton(
           onPressed: () {
             Navigator.pop(context);
             onPressed?.call();
           },
-          child: Text(buttonText,
-              style: const TextStyle(
-                  color: Color.fromARGB(255, 47, 140, 229),
-                  fontFamily: 'Poppins')),
+          child: Text(
+            buttonText,
+            style: const TextStyle(
+              color: Color.fromARGB(255, 47, 140, 229),
+              fontFamily: 'Poppins',
+            ),
+          ),
         ),
       ],
       shape: RoundedRectangleBorder(

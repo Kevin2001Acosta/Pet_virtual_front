@@ -5,17 +5,25 @@ import 'package:yes_no_app/domain/entities/message.dart';
 class ChatProvider extends ChangeNotifier {
   final ScrollController chatScrollController = ScrollController();
   final GetIAAnswer getIAAnswer = GetIAAnswer();
+  String _currentEmotion = 'neutral';
   bool _isLoading = false; 
 
   List<Message> messageList = [];
 
   bool get isLoading => _isLoading;
-
+ 
+  String get currentEmotion => _currentEmotion;
   
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
+
+ void setEmotion(String emotion) {
+    _currentEmotion = emotion;
+    notifyListeners();
+  }
+
 
   //Mostrar el escribiendo
   void _startTyping() {
@@ -40,6 +48,7 @@ class ChatProvider extends ChangeNotifier {
 
   Future<void> sendMessage(String text, String email) async {
     if (text.isEmpty) return;
+    
     final newMessage = Message(text: text, fromWho: FromWho.me);
     messageList.add(newMessage);
 
@@ -65,6 +74,7 @@ class ChatProvider extends ChangeNotifier {
       _stopTyping();
 
       messageList.add(herMessage);
+      setEmotion(herMessage.emotion);
       print(herMessage.text); // ignore: avoid_print
       print(herMessage.imageUrl); // ignore: avoid_print
     } catch (e) {
@@ -74,7 +84,9 @@ class ChatProvider extends ChangeNotifier {
       messageList.add(Message(
         text: '¡Ups! No pude responder. Error: ${e.toString()}',
         fromWho: FromWho.hers,
+        emotion: 'respirar',
       ));
+    setEmotion('respirar');
     } finally {
       _setLoading(false); 
       

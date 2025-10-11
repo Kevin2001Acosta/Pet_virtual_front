@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yes_no_app/infrastructure/models/auth_model.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
 import 'package:yes_no_app/presentation/widgets/alert.dart';
-import 'dart:ui' as ui;
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -11,15 +10,58 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
+  
+  // Animaciones
+  late AnimationController _fadeController;
+  late AnimationController _slideController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Inicializar controladores de animación
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    
+    // Configurar animaciones
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    // Iniciar animaciones
+    _fadeController.forward();
+    _slideController.forward();
+  }
 
   Future<void> _registerUser() async {
-    print('Botón presionado');
+    debugPrint('Botón presionado');
 
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
@@ -41,44 +83,247 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: _passwordController.text,
       );
       
-      print('📦 Datos del usuario: ${user.toJson()}');
+      debugPrint('Datos del usuario: ${user.toJson()}');
 
       final authService = AuthService();
       final response = await authService.register(user);
 
+       debugPrint('Respuesta del servicio: $response');
+
       if (response['success'] == true) {
-        showSuccessDialog(
-          context: context,
-          title: 'Éxito',
-          message: response['message'] ?? 'Cuenta resgistrada con éxito',
-        );
-        Navigator.pushReplacementNamed(context, '/login');
+        if (mounted) {
+          showErrorDialog(
+            context: context,
+            title: 'Éxito',
+            message: response['message'] ?? 'Cuenta registrada con éxito',
+          );
+          
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            if (mounted) {
+              Navigator.pushReplacementNamed(context, '/login');
+            }
+          });
+        }
       } else {
+        if (mounted) {
+          showErrorDialog(
+            context: context,
+            title: 'Error',
+            message: response['error'] ?? 'Error en el registro',
+          );
+        }
+      }
+    } catch (e) {
+      print('Error completo: $e');
+      if (mounted) {
         showErrorDialog(
           context: context,
           title: 'Error',
-          message: response['message'] ?? 'Error en el registro',
+          message: 'Ocurrió un error inesperado: $e',
         );
       }
-    } catch (e) {
-       print('Error completo: $e');
-      showErrorDialog(
-        context: context,
-        title: 'Error',
-        message: 'Ocurrió un error inesperado: $e',
-      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
+  /// Calcula tamaños responsive basados en la pantalla
+  double _getResponsiveFontSize(BuildContext context, double baseSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    
+    if (isTablet) {
+      return baseSize * 1.2; // 20% más grande en tablets
+    } else if (isLandscape) {
+      return baseSize * 0.9; // 10% más pequeño en landscape
+    } else {
+      return baseSize * (screenWidth / 375); // Basado en iPhone X (375px)
+    }
+  }
+
+  double _getResponsiveSpacing(BuildContext context, double baseSpacing) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    
+    if (isLandscape) {
+      return baseSpacing * 0.7; 
+    } else {
+      return baseSpacing * (screenHeight / 812);
+    }
+  }
+
+  double _getResponsiveImageSize(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isTablet = screenWidth > 600;
+  final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+  
+  if (isTablet) {
+    return screenWidth * 0.3;
+  } else if (isLandscape) {
+    return screenWidth * 0.30; 
+  } else {
+    return screenWidth * 0.5; 
+  }
+}
+
+  /// Campo de texto estilizado
+  Widget _buildStyledTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required BuildContext context,
+    bool isPassword = false,
+  }) {
+    final isTablet = MediaQuery.of(context).size.width > 600;
+    
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        obscureText: isPassword ? _obscureText : false,
+        style: TextStyle(
+          fontSize: _getResponsiveFontSize(context, 16),
+          fontWeight: FontWeight.w500,
+        ),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: _getResponsiveFontSize(context, 16),
+            color: const Color.fromARGB(137, 0, 0, 0),
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(8),
+            child: Icon(
+              icon,
+              color: Colors.black, 
+              size: _getResponsiveFontSize(context, 20),
+            ),
+          ),
+          suffixIcon: isPassword ? IconButton(
+            icon: Icon(
+              _obscureText ? Icons.visibility_off : Icons.visibility,
+              color: Colors.black, 
+              size: _getResponsiveFontSize(context, 20),
+            ),
+            onPressed: () {
+              setState(() {
+                _obscureText = !_obscureText;
+              });
+            },
+          ) : null,
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: isTablet ? 20 : 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide(
+              color: const Color.fromARGB(255, 243, 84, 73),
+              width: 2,
+            ),
+          ),
+          filled: true,
+          fillColor: Colors.transparent,
+        ),
+      ),
+    );
+  }
+
+ 
+  Widget _buildHeader(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isTablet = screenWidth > 600;
+
+  return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: _getResponsiveImageSize(context),
+        height: _getResponsiveImageSize(context),
+        child: Transform.rotate(
+          angle: 0.1,
+          child: Image.asset(
+            'assets/images/registro.png',
+            fit: BoxFit.contain,
+          ),
+        ),
+      ),
+      SizedBox(height: _getResponsiveSpacing(context, 12)),
+
+    Stack(
+    children: [
+      Text(
+        'CREAR CUENTA',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'ComicNeue', 
+          fontWeight: FontWeight.w800,
+          fontSize: _getResponsiveFontSize(context, 38),
+          foreground: Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 4
+            ..color = Colors.white,
+          letterSpacing: 1.2,
+          height: 1.1,
+        ),
+    ),
+    // Relleno rojo
+      Text(
+        'CREAR CUENTA',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'ComicNeue',
+          fontWeight: FontWeight.w800,
+          fontSize: _getResponsiveFontSize(context, 38),
+          color: Color(0xFFE52E2E), 
+          letterSpacing: 1.2,
+          height: 1.1,
+        ),
+      ),
+    ],
+    ),
+    ],
+  );
+}
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isTablet = screenWidth > 600;
+    
+    
+    final maxWidth = isTablet ? 500.0 : screenWidth;
+    
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo
-          Container(
+           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -89,194 +334,141 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+              padding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 40.0 : 24.0,
+                vertical: isLandscape ? 20.0 : 40.0,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: maxWidth,
+                  minHeight: screenHeight - (isLandscape ? 40 : 80),
+                ),
+                child: AnimatedBuilder(
+                  animation: _fadeAnimation,
+                  builder: (context, child) {
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Expanded(
-                              child: Text(
-                                'Crear cuenta',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 34,
-                                  color: Color.fromARGB(255, 10, 10, 10),
-                                  letterSpacing: 1.0,
-                                  height: 1.2,
-                                  shadows: [
-                                    ui.Shadow(
-                                      blurRadius: 2.0,
-                                      color: Color.fromARGB(255, 255, 254, 254),
-                                      offset: Offset(2.0, 2.0),
+                         
+                            _buildHeader(context),
+                            SizedBox(height: _getResponsiveSpacing(context, 40)),
+
+                            // Campos de formulario
+                            Column(
+                              children: [
+                                _buildStyledTextField(
+                                  controller: _nameController,
+                                  label: 'Nombre',
+                                  icon: Icons.person_outline,
+                                  context: context,
+                                ),
+                                SizedBox(height: _getResponsiveSpacing(context, 16)),
+                                _buildStyledTextField(
+                                  controller: _emailController,
+                                  label: 'Correo electrónico',
+                                  icon: Icons.email,
+                                  context: context,
+                                ),
+                                SizedBox(height: _getResponsiveSpacing(context, 16)),
+                                _buildStyledTextField(
+                                  controller: _passwordController,
+                                  label: 'Contraseña',
+                                  icon: Icons.lock,
+                                  context: context,
+                                  isPassword: true,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: _getResponsiveSpacing(context, 50)),
+
+                            // Botón de registro
+                            Container(
+                              width: double.infinity,
+                              height: isTablet ? 60 : 55,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    const Color.fromARGB(255, 243, 84, 73),
+                                    const Color.fromARGB(255, 229, 47, 47),
+                                    const Color.fromARGB(255, 211, 47, 47),
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color.fromARGB(255, 243, 84, 73).withOpacity(0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(25),
+                                  onTap: _isLoading ? null : _registerUser,
+                                  child: Center(
+                                    child: _isLoading
+                                        ? SizedBox(
+                                            height: _getResponsiveFontSize(context, 20),
+                                            width: _getResponsiveFontSize(context, 20),
+                                            child: const CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            ),
+                                          )
+                                        : Text(
+                                            'REGISTRARSE',
+                                            style: TextStyle(
+                                              fontFamily: 'Poppins',
+                                              fontSize: _getResponsiveFontSize(context, 20),
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                              letterSpacing: 1.2,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: _getResponsiveSpacing(context, 7)),
+
+                            // Botón de login
+                            TextButton(
+                              onPressed: () => Navigator.pushNamed(context, '/login'),
+                              child: RichText(
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: _getResponsiveFontSize(context, 16),
+                                    color: Colors.black,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: ' ¿Ya tienes cuenta? '),
+                                    TextSpan(
+                                      text: 'Inicia sesión',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: _getResponsiveFontSize(context, 16),
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                            Transform.translate(
-                              offset: const Offset(70, 0),
-                              child: SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Transform.rotate(
-                                    angle: -0.2,
-                                    child: Image.asset(
-                                      'assets/images/register.png',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  //Campos
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Color.fromARGB(137, 0, 0, 0),
                       ),
-                      prefixIcon: const Icon(
-                        Icons.person_outline,
-                        color: Color.fromARGB(255, 95, 95, 95),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Correo electrónico',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Colors.black54,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.email,
-                        color: Color.fromARGB(255, 95, 95, 95),
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      labelText: 'Contraseña',
-                      labelStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        color: Colors.black54,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.lock,
-                        color: Color.fromARGB(255, 95, 95, 95),
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                          color: Colors.grey,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 80),
-
-                  // Botón de degistro
-                  SizedBox(
-                    width: double.infinity,
-                    child: Material(
-                      elevation: 4,
-                      borderRadius: BorderRadius.circular(25),
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _registerUser,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            229,
-                            47,
-                            47,
-                          ),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          textStyle: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        child: const Text('REGISTRARSE'),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-
-                  // Botón de login
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(context, '/login'),
-                    child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                        children: [
-                          TextSpan(text: ' ¿Ya tienes cuenta? '),
-                          TextSpan(
-                            text: 'Inicia sesión',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -290,6 +482,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _fadeController.dispose();
+    _slideController.dispose();
     super.dispose();
   }
 }
