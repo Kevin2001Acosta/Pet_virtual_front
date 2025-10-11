@@ -222,6 +222,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     });
 
     try {
+      debugPrint(widget.token);
       final result = await _authService.resetPassword(
         _passwordController.text,
         widget.token,

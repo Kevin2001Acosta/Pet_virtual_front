@@ -190,7 +190,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
         _mascotaArtboard = artboard;
         _isLoading = false;
       });
-
     } catch (e) {
       debugPrint(" Error cargando Rive: $e");
       _setError();
@@ -359,4 +358,3 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     );
   }
 }
-
