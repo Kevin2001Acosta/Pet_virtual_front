@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-    
+
     setState(() => _isLoading = true);
 
     try {
@@ -38,13 +38,14 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await authService.login(user);
 
       debugPrint('Respuesta completa: $response');
+      debugPrint(response['token'] ?? 'No se recibió token');
 
       if (response['success'] == true) {
         if (!mounted) return;
         Navigator.pushReplacementNamed(
           context,
           '/chat',
-          arguments: {'email': user.email},
+          arguments: {'token': response['token']},
         );
       } else {
         if (!mounted) return;
@@ -68,29 +69,31 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// Calcula tamaños 
+  /// Calcula tamaños
   double _getResponsiveFontSize(BuildContext context, double baseSize) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isTablet) {
-      return baseSize * 1.2; 
+      return baseSize * 1.2;
     } else if (isLandscape) {
-      return baseSize * 0.9; 
+      return baseSize * 0.9;
     } else {
-      return baseSize * (screenWidth / 375); 
+      return baseSize * (screenWidth / 375);
     }
   }
 
   double _getResponsiveSpacing(BuildContext context, double baseSpacing) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isLandscape) {
-      return baseSpacing * 0.7; 
+      return baseSpacing * 0.7;
     } else {
-      return baseSpacing * (screenHeight / 812); 
+      return baseSpacing * (screenHeight / 812);
     }
   }
 
@@ -98,18 +101,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isTablet) {
-      return 220; 
+      return 220;
     } else if (isLandscape) {
-      return screenHeight * 0.25; 
+      return screenHeight * 0.25;
     } else {
-      return screenWidth * 0.45; 
+      return screenWidth * 0.45;
     }
   }
 
-  /// Campo de texto 
+  /// Campo de texto
   Widget _buildStyledTextField({
     required TextEditingController controller,
     required String label,
@@ -120,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
     bool obscureText = true,
   }) {
     final isTablet = MediaQuery.of(context).size.width > 600;
-    
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
@@ -156,14 +160,16 @@ class _LoginScreenState extends State<LoginScreen> {
               size: _getResponsiveFontSize(context, 20),
             ),
           ),
-          suffixIcon: isPassword ? IconButton(
-            icon: Icon(
-              obscureText ? Icons.visibility_off : Icons.visibility,
-              color: Colors.black,
-              size: _getResponsiveFontSize(context, 20),
-            ),
-            onPressed: onToggleVisibility,
-          ) : null,
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    obscureText ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.black,
+                    size: _getResponsiveFontSize(context, 20),
+                  ),
+                  onPressed: onToggleVisibility,
+                )
+              : null,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 20,
             vertical: isTablet ? 20 : 16,
@@ -194,11 +200,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet = screenWidth > 600;
-    
+
     final maxWidth = isTablet ? 500.0 : screenWidth;
-    
+
     return Scaffold(
       body: Stack(
         children: [
@@ -212,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          Center( 
+          Center(
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: isTablet ? 40.0 : 24.0,
@@ -227,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: _getResponsiveSpacing(context, 30)),
-                   
+
                     // Titulo
                     Stack(
                       children: [
@@ -258,19 +265,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             letterSpacing: 1.2,
                             height: 1.1,
                           ),
-                        ), 
+                        ),
                       ],
                     ),
-                    
+
                     SizedBox(height: _getResponsiveSpacing(context, 20)),
-                    
+
                     // Imagen
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: const Color.fromARGB(255, 233, 80, 70),
                         border: Border.all(
-                          color: Colors.white, 
+                          color: Colors.white,
                           width: isTablet ? 6 : 5,
                         ),
                       ),
@@ -284,17 +291,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    
+
                     SizedBox(height: _getResponsiveSpacing(context, 40)),
 
-                    // Campos 
+                    // Campos
                     _buildStyledTextField(
                       controller: _emailController,
                       label: 'Correo electrónico',
                       icon: Icons.email,
                       context: context,
                     ),
-                    
+
                     SizedBox(height: _getResponsiveSpacing(context, 16)),
 
                     _buildStyledTextField(
@@ -312,7 +319,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
 
                     SizedBox(height: _getResponsiveSpacing(context, 8)),
-                    
+
                     Align(
                       alignment: Alignment.center,
                       child: TextButton(
@@ -328,7 +335,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    
+
                     SizedBox(height: _getResponsiveSpacing(context, 50)),
 
                     // Botón de Iniciar Sesión
@@ -348,7 +355,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color.fromARGB(255, 243, 84, 73).withOpacity(0.4),
+                            color: const Color.fromARGB(
+                              255,
+                              243,
+                              84,
+                              73,
+                            ).withOpacity(0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -366,14 +378,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: _getResponsiveFontSize(context, 20),
                                     child: const CircularProgressIndicator(
                                       strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 : Text(
                                     'INICIAR SESIÓN',
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
-                                      fontSize: _getResponsiveFontSize(context, 18),
+                                      fontSize: _getResponsiveFontSize(
+                                        context,
+                                        18,
+                                      ),
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                       letterSpacing: 1.2,
@@ -383,12 +400,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    
+
                     SizedBox(height: _getResponsiveSpacing(context, 5)),
 
                     // Registrarse
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(context, '/register'),
+                      onPressed: () =>
+                          Navigator.pushNamed(context, '/register'),
                       child: RichText(
                         text: TextSpan(
                           style: TextStyle(

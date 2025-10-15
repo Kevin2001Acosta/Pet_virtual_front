@@ -6,30 +6,29 @@ class ChatProvider extends ChangeNotifier {
   final ScrollController chatScrollController = ScrollController();
   final GetIAAnswer getIAAnswer = GetIAAnswer();
   String _currentEmotion = 'neutral';
-  bool _isLoading = false; 
+  bool _isLoading = false;
 
   List<Message> messageList = [];
 
   bool get isLoading => _isLoading;
- 
+
   String get currentEmotion => _currentEmotion;
-  
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
   }
 
- void setEmotion(String emotion) {
+  void setEmotion(String emotion) {
     _currentEmotion = emotion;
     notifyListeners();
   }
 
-
   //Mostrar el escribiendo
   void _startTyping() {
     final typingMessage = Message(
-      text: 'Escribiendo...', 
-      fromWho: FromWho.typing, 
+      text: 'Escribiendo...',
+      fromWho: FromWho.typing,
     );
     messageList.add(typingMessage);
     notifyListeners();
@@ -44,32 +43,29 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-
-
-  Future<void> sendMessage(String text, String email) async {
+  Future<void> sendMessage(String text, String token) async {
     if (text.isEmpty) return;
-    
+
     final newMessage = Message(text: text, fromWho: FromWho.me);
     messageList.add(newMessage);
 
-     notifyListeners();
-    
-    _setLoading(true); 
+    notifyListeners();
 
-     _startTyping();
+    _setLoading(true);
+
+    _startTyping();
 
     moveScrollToBottom();
 
-    herReply(text, email);
-
+    herReply(text, token);
   }
 
   // Petición
-  Future<void> herReply(String text, String email) async {
-    _setLoading(true); 
+  Future<void> herReply(String text, String token) async {
+    _setLoading(true);
 
     try {
-      final herMessage = await getIAAnswer.getAnswer(text, email);
+      final herMessage = await getIAAnswer.getAnswer(text, token);
 
       _stopTyping();
 
@@ -78,37 +74,39 @@ class ChatProvider extends ChangeNotifier {
       print(herMessage.text); // ignore: avoid_print
       print(herMessage.imageUrl); // ignore: avoid_print
     } catch (e) {
-
       _stopTyping();
 
-      messageList.add(Message(
-        text: '¡Ups! No pude responder. Error: ${e.toString()}',
-        fromWho: FromWho.hers,
-        emotion: 'respirar',
-      ));
-    setEmotion('respirar');
+      messageList.add(
+        Message(
+          text: '¡Ups! No pude responder. Error: ${e.toString()}',
+          fromWho: FromWho.hers,
+          emotion: 'respirar',
+        ),
+      );
+      setEmotion('respirar');
     } finally {
-      _setLoading(false); 
-      
+      _setLoading(false);
+
       notifyListeners();
       moveScrollToBottom();
     }
   }
 
-  Future<void> loadMessages(String email) async {
+  Future<void> loadMessages(String token) async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _setLoading(true);
     });
 
     try {
-      final messages = await getIAAnswer.getMessages(email);
+      final messages = await getIAAnswer.getMessages(token);
       messageList = messages;
-
     } catch (e) {
-      messageList.add(Message(
-        text: 'Error cargando mensajes: ${e.toString()}',
-        fromWho: FromWho.me,
-      ));
+      messageList.add(
+        Message(
+          text: 'Error cargando mensajes: ${e.toString()}',
+          fromWho: FromWho.me,
+        ),
+      );
     } finally {
       _setLoading(false);
       notifyListeners();
@@ -120,9 +118,10 @@ class ChatProvider extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 100));
     if (!chatScrollController.hasClients) return;
     chatScrollController.animateTo(
-        chatScrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut);
+      chatScrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override

@@ -18,12 +18,20 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _checkAuthentication() async {
     await Future.delayed(const Duration(milliseconds: 1500));
-    
+
     final isLoggedIn = await SecureStorageService.isLoggedIn();
-    
+    debugPrint('Usuario autenticado: $isLoggedIn');
+    debugPrint("montado: $mounted");
     if (mounted) {
       if (isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/chat');
+        final token = await SecureStorageService.getToken();
+        debugPrint('Token obtenido: $token');
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(
+          context,
+          '/chat',
+          arguments: {'token': token},
+        );
       } else {
         Navigator.pushReplacementNamed(context, '/login');
       }
@@ -64,9 +72,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),

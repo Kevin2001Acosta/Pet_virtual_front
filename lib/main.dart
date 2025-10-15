@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yes_no_app/config/theme/app_theme.dart';
 import 'package:yes_no_app/presentation/providers/chat_provider.dart';
+import 'package:yes_no_app/presentation/screens/auth/splashScreen.dart';
 import 'package:yes_no_app/presentation/screens/chat/chat_screen.dart';
 import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
-import 'package:yes_no_app/presentation/screens/auth/splashScreen.dart';
 import 'package:yes_no_app/presentation/screens/chat/bienestar_emocional.dart';
+
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 
@@ -109,8 +110,8 @@ class _MyAppState extends State<MyApp> {
             final args =
                 ModalRoute.of(context)!.settings.arguments
                     as Map<String, dynamic>?;
-            final email = args?['email'] ?? '';
-            return ChatScreen(email: email);
+            final token = args?['token'] ?? '';
+            return ChatScreen(token: token);
           },
           '/forgot_password': (context) => const ForgotScreen(),
           '/changePassword': (context) {

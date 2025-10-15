@@ -11,25 +11,27 @@ class GetIAAnswer {
     ),
   );
 
-  Future<Message> getAnswer(String text, String email) async {
-    final response = await _dio.post('/chatbot/chat', data: {
-      'message': text,
-      'email': email,
-      
-    });
+  Future<Message> getAnswer(String text, String token) async {
+    final response = await _dio.post(
+      '/chatbot/chat',
+      data: {'message': text},
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
 
-    final ResponseIAModel responseIAModel =
-        ResponseIAModel.fromJsonMap(response.data);
+    final ResponseIAModel responseIAModel = ResponseIAModel.fromJsonMap(
+      response.data,
+    );
 
     print("🎭 Emoción extraída: ${responseIAModel.emotion}");
 
     return responseIAModel.toMessageEntity();
   }
 
-  Future<List<Message>> getMessages(String email) async {
-    final response = await _dio.get('/chatbot/chat/history', queryParameters: {
-      'email': email,
-    });
+  Future<List<Message>> getMessages(String token) async {
+    final response = await _dio.get(
+      '/chatbot/chat/history',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
 
     List<dynamic> conversations = response.data;
 
@@ -37,18 +39,22 @@ class GetIAAnswer {
 
     for (var conv in conversations) {
       // Mensaje del usuario
-      messages.add(Message(
-        text: conv['question'] ?? '',
-        emotion: 'respirar',
-        fromWho: FromWho.me,
-      ));
+      messages.add(
+        Message(
+          text: conv['question'] ?? '',
+          emotion: 'respirar',
+          fromWho: FromWho.me,
+        ),
+      );
       // Respuesta del bot
-      messages.add(Message(
-        text: conv['answer'] ?? '',
-        imageUrl: conv['imageUrl'],
-        emotion: conv['emotion'] ?? 'respirar',
-        fromWho: FromWho.hers,
-      ));
+      messages.add(
+        Message(
+          text: conv['answer'] ?? '',
+          imageUrl: conv['imageUrl'],
+          emotion: conv['emotion'] ?? 'respirar',
+          fromWho: FromWho.hers,
+        ),
+      );
     }
     return messages;
   }
