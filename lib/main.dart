@@ -7,7 +7,6 @@ import 'package:yes_no_app/presentation/screens/auth/login.dart';
 import 'package:yes_no_app/presentation/screens/auth/register.dart';
 import 'package:yes_no_app/presentation/screens/auth/forgot_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
-import 'package:yes_no_app/presentation/screens/auth/change_password.dart';
 import 'package:yes_no_app/presentation/screens/auth/splashScreen.dart';
 import 'package:yes_no_app/presentation/screens/chat/bienestar_emocional.dart';
 import 'dart:async';
