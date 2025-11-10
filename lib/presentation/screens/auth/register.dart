@@ -14,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _petNameController = TextEditingController(); 
   bool _isLoading = false;
   bool _obscureText = true;
   
@@ -81,6 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         name: _nameController.text,
         email: _emailController.text,
         password: _passwordController.text,
+        petName: _petNameController.text,
       );
       
       debugPrint('Datos del usuario: ${user.toJson()}');
@@ -383,8 +385,14 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 ),
                               ],
                             ),
-                            SizedBox(height: _getResponsiveSpacing(context, 50)),
-
+                            SizedBox(height: _getResponsiveSpacing(context, 16)),
+                            _buildStyledTextField(
+                                  controller: _petNameController,
+                                  label: 'Nombre mascota',
+                                  icon: Icons.pets,
+                                  context: context,
+                                ),
+                              SizedBox(height: _getResponsiveSpacing(context, 50)),
                             // Botón de registro
                             Container(
                               width: double.infinity,

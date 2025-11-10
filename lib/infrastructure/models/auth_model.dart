@@ -3,16 +3,19 @@ class UserRegister {
   final String name;
   final String email;
   final String password;
+  final String petName;
  
   UserRegister({
     required this.name, 
     required this.email,
-    required this.password });
+    required this.password,
+    required this.petName, });
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'email': email,
         'password': password,
+        'petName': petName,
         
       };
 }

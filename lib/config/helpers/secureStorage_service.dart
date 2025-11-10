@@ -1,4 +1,3 @@
-// lib/config/helpers/secure_storage_service.dart
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorageService {
@@ -18,6 +17,12 @@ class SecureStorageService {
   static Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
   }
+ 
+  // Borrar token
+  static Future<void> deleteToken() async {
+    await _storage.delete(key: _tokenKey);
+  }
+
 
   // Guardar información del usuario
   static Future<void> saveUserInfo({

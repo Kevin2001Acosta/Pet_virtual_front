@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:yes_no_app/presentation/widgets/bienestar/semaforo_widget.dart';
 import 'package:yes_no_app/config/helpers/bienestar_service.dart'; 
 import 'package:yes_no_app/presentation/widgets/bienestar/grafica_emocional_widget.dart';
-import 'package:yes_no_app/presentation/widgets/bienestar/emotion_item_widget.dart';
 import 'package:yes_no_app/infrastructure/models/bienestar_model.dart';
 import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
 
@@ -16,46 +15,111 @@ class BienestarEmocionalScreen extends StatefulWidget {
 class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   EstadoSemaforo? _estadoActual;
   bool _cargando = true;
+  bool _cargandoSemaforo = true;
+  bool _cargandoGrafica = true;
   final bienestarService = BienestarService();
+  List<DatoGrafica>? _datosSemanales;
 
   @override
   void initState() {
     super.initState();
-    _cargarEstadoEmocional();
+    _cargarTodo();
   }
 
-  Future<void> _cargarEstadoEmocional() async {
-    setState(() => _cargando = true);
+  Future<void> _cargarTodo() async {
+    setState(() {
+      _cargando = true;
+      _cargandoSemaforo = true;
+      _cargandoGrafica = true;
+    });
     
+    await Future.wait([
+      _cargarEstadoEmocional(),
+      _cargarDatosSemanales(),
+    ]);
+  }
+  
+  Future<void> _cargarDatosSemanales() async {
     try {
       final token = await _obtenerToken();
-      print(' Token: ${token != null ? "OK" : "NULL"}');
-      
       if (token != null) {
-        final estado = await bienestarService.obtenerEstadoSemaforoSeguro(token);
-        print(' Estado recibido: $estado');
+        final now = DateTime.now();
+        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final endOfWeek = startOfWeek.add(Duration(days: 6));
+        
+        final startDate = '${startOfWeek.year}-${startOfWeek.month.toString().padLeft(2, '0')}-${startOfWeek.day.toString().padLeft(2, '0')}';
+        final endDate = '${endOfWeek.year}-${endOfWeek.month.toString().padLeft(2, '0')}-${endOfWeek.day.toString().padLeft(2, '0')}';
+        
+        print('📅 Consultando niveles emocionales del $startDate al $endDate');
+        
+        final weekData = await bienestarService.obtenerNivelesSemanales(
+          token: token,
+          startDate: startDate,
+          endDate: endDate,
+        );
         
         setState(() {
-          _estadoActual = estado ?? EstadoSemaforo.verde;
-          _cargando = false;
+          _datosSemanales = weekData.toDatosGrafica();
+          _cargandoGrafica = false;
+          _actualizarEstadoCarga();
         });
+        
+        print('✅ Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
-        print(' No hay token disponible');
         setState(() {
-          _estadoActual = EstadoSemaforo.verde; 
-          _cargando = false;
+          _cargandoGrafica = false;
+          _actualizarEstadoCarga();
         });
       }
     } catch (e) {
-      print(' Error: $e');
+      print('❌ Error cargando datos semanales: $e');
+      setState(() {
+        _cargandoGrafica = false;
+        _actualizarEstadoCarga();
+      });
+    }
+  }
+
+  Future<void> _cargarEstadoEmocional() async {
+    try {
+      final token = await _obtenerToken();
+      print('🔑 Token: ${token != null ? "OK" : "NULL"}');
+      
+      if (token != null) {
+        final estado = await bienestarService.obtenerEstadoSemaforoSeguro(token);
+        print('🚦 Estado recibido: $estado');
+        
+        setState(() {
+          _estadoActual = estado ?? EstadoSemaforo.verde;
+          _cargandoSemaforo = false;
+          _actualizarEstadoCarga();
+        });
+      } else {
+        print('⚠️ No hay token disponible');
+        setState(() {
+          _estadoActual = EstadoSemaforo.verde; 
+          _cargandoSemaforo = false;
+          _actualizarEstadoCarga();
+        });
+      }
+    } catch (e) {
+      print('❌ Error: $e');
       setState(() {
         _estadoActual = EstadoSemaforo.verde; 
+        _cargandoSemaforo = false;
+        _actualizarEstadoCarga();
+      });
+    }
+  }
+
+  void _actualizarEstadoCarga() {
+    if (!_cargandoSemaforo && !_cargandoGrafica) {
+      setState(() {
         _cargando = false;
       });
     }
   }
 
-  // Método para obtener token
   Future<String?> _obtenerToken() async {
     try {
       return await SecureStorageService.getToken();
@@ -67,7 +131,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
  
   @override
   Widget build(BuildContext context) {
-    print(' Estado: $_estadoActual, Cargando: $_cargando');
+    print('🔄 Estado: $_estadoActual, Cargando: $_cargando');
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -76,7 +140,9 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
       floatingActionButton: FloatingActionButton(
         mini: true,
         backgroundColor: const Color(0xFFF35449),
-        onPressed: _cargarEstadoEmocional,
+        onPressed: () {
+          _cargarTodo();
+        },
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
     );
@@ -105,11 +171,8 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         ),
         onPressed: () => Navigator.pop(context),
       ),
-      title: Padding(
-        padding: const EdgeInsets.only(left: 0),
-        child: _buildAppBarContent(context),
-      ),
-      actions: [_buildProgressIndicator(context)],
+      title: _buildAppBarContent(context),
+      centerTitle: true,
     );
   }
 
@@ -126,8 +189,9 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     final iconSize = isTablet ? 80.0 : (isLandscape ? 40.0 : 60.0);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: avatarSize,
@@ -163,84 +227,37 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           ),
         ),
         SizedBox(width: spacing),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Tu bienestar',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: titleFontSize,
-                  color: Colors.white,
-                  height: 1.1,
-                ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Tu bienestar',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: titleFontSize,
+                color: Colors.white,
+                height: 1.1,
               ),
-              SizedBox(height: isLandscape ? 1 : 2),
-              Text(
-                'importa 💖',
-                style: TextStyle(
-                  fontWeight: FontWeight.w400,
-                  fontSize: subtitleFontSize,
-                  color: Colors.white.withOpacity(0.95),
-                ),
+            ),
+            SizedBox(height: isLandscape ? 1 : 2),
+            Text(
+              'importa 💖',
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                fontSize: subtitleFontSize,
+                color: Colors.white.withOpacity(0.95),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildProgressIndicator(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-
-    final iconSize = isTablet ? 20.0 : (isLandscape ? 14.0 : 16.0);
-    final fontSize = isTablet ? 18.0 : (isLandscape ? 12.0 : 14.0);
-    final margin = isTablet ? 20.0 : (isLandscape ? 12.0 : 16.0);
-
-    return Container(
-      margin: EdgeInsets.only(right: margin),
-      padding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 16.0 : (isLandscape ? 8.0 : 12.0),
-        vertical: isTablet ? 12.0 : (isLandscape ? 6.0 : 8.0),
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(isTablet ? 25 : 20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.trending_up, color: Colors.white, size: iconSize),
-          SizedBox(width: isTablet ? 6.0 : (isLandscape ? 3.0 : 4.0)),
-          Text(
-            '+15%',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ========== CUERPO PRINCIPAL ==========
   Widget _buildBody(BuildContext context) {
-    final emociones = [
-      Emocion(emoji: '😊', nombre: 'Alegría', porcentaje: 35),
-      Emocion(emoji: '😌', nombre: 'Calma', porcentaje: 25),
-      Emocion(emoji: '💕', nombre: 'Gratitud', porcentaje: 18),
-      Emocion(emoji: '🤔', nombre: 'Reflexión', porcentaje: 12),
-      Emocion(emoji: '😰', nombre: 'Ansiedad', porcentaje: 10),
-    ];
-
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
@@ -280,22 +297,33 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
                       ),
                     ),
                   )
-                else
-                  // Mostrar semáforo con el estado cargado
+                else ...[
+                  //  SEMÁFORO EMOCIONAL
+                  _buildSectionTitle(
+                    icon: Icons.traffic,
+                    title: 'Estado Emocional Actual',
+                    isTablet: isTablet,
+                    isLandscape: isLandscape,
+                  ),
+                  SizedBox(height: spacing * 0.5),
                   SemaforoWidget(
                     estadoActual: _estadoActual ?? EstadoSemaforo.verde,
                     showAnimation: true,
                   ),
-                
-                SizedBox(height: spacing),
+                  
+                  SizedBox(height: spacing * 1.5),
 
-                // 📊 Gráfica de evolución
-                const GraficaEmocionalWidget(),
-                SizedBox(height: spacing),
-
-                // 💬 Lista de emociones frecuentes
-                _buildEmotionsSection(emociones, context),
-                SizedBox(height: spacing),
+                  //  GRÁFICA DE EVOLUCIÓN
+                  _buildSectionTitle(
+                    icon: Icons.show_chart,
+                    title: 'Evolución Semanal',
+                    isTablet: isTablet,
+                    isLandscape: isLandscape,
+                  ),
+                  SizedBox(height: spacing * 0.5),
+                  GraficaEmocionalWidget(datos: _datosSemanales),
+                  SizedBox(height: spacing),
+                ],
 
                 SizedBox(height: isTablet ? 24 : 16),
               ],
@@ -306,33 +334,31 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     );
   }
 
-  Widget _buildEmotionsSection(List<Emocion> emociones, BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+  Widget _buildSectionTitle({
+    required IconData icon,
+    required String title,
+    required bool isTablet,
+    required bool isLandscape,
+  }) {
+    final fontSize = isTablet ? 20.0 : (isLandscape ? 16.0 : 18.0);
+    final iconSize = isTablet ? 24.0 : (isLandscape ? 18.0 : 20.0);
 
-    final titleFontSize = isTablet ? 20.0 : (isLandscape ? 14.0 : 17.0);
-    final spacing = isTablet ? 18.0 : (isLandscape ? 10.0 : 14.0);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            const Text('💬', style: TextStyle(fontSize: 24)),
-            SizedBox(width: isTablet ? 10 : 8),
-            Text(
-              'Emociones más frecuentes',
-              style: TextStyle(
-                fontSize: titleFontSize,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFF35449),
-              ),
-            ),
-          ],
+        Icon(
+          icon,
+          color: const Color(0xFFF35449),
+          size: iconSize,
         ),
-        SizedBox(height: spacing),
-        ...emociones.map((emocion) => EmotionItemWidget(emocion: emocion)),
+        const SizedBox(width: 18),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[800],
+          ),
+        ),
       ],
     );
   }
