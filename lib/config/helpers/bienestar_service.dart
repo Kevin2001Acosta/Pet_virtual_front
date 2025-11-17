@@ -52,15 +52,13 @@ class BienestarService {
     try {
       return await obtenerEstadoSemaforo(token);
     } catch (e) {
-      print('⚠️ Error al obtener estado: $e');
+      print(' Error al obtener estado: $e');
       return null;
     }
   }
 
 
-//Para grafica emocional
-
-// Obtener niveles emocionales semanales
+//Para gráfica emocional
 Future<EmotionalWeekData> obtenerNivelesSemanales({
   required String token,
   required String startDate,
@@ -98,7 +96,6 @@ Future<EmotionalWeekData> obtenerNivelesSemanales({
   }
 }
 
-// Versión segura (no lanza excepciones)
 Future<EmotionalWeekData?> obtenerNivelesSemanaalesSeguro({
   required String token,
   required String startDate,
@@ -111,10 +108,8 @@ Future<EmotionalWeekData?> obtenerNivelesSemanaalesSeguro({
       endDate: endDate,
     );
   } catch (e) {
-    print('⚠️ Error al obtener niveles semanales: $e');
+    print(' Error al obtener niveles semanales: $e');
     return null;
   }
 }
-
-  
 }

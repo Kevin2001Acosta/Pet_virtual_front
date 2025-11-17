@@ -51,9 +51,12 @@ class AuthService {
           email: response.data['user']['email'],
           name: response.data['user']['name'],
           userId: response.data['user']['id'].toString(),
+          fechaInscripcion: response.data['user']['create_at'],
         );
         
         print('Token guardado exitosamente');
+         print(' Fecha guardada: ${response.data['user']['create_at']}');
+
       }
 
       return {

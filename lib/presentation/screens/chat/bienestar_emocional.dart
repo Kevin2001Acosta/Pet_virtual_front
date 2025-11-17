@@ -4,6 +4,8 @@ import 'package:yes_no_app/config/helpers/bienestar_service.dart';
 import 'package:yes_no_app/presentation/widgets/bienestar/grafica_emocional_widget.dart';
 import 'package:yes_no_app/infrastructure/models/bienestar_model.dart';
 import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
+import 'package:yes_no_app/presentation/widgets/bienestar/crisis_modal_helper.dart';
+import 'package:yes_no_app/presentation/widgets/bienestar/control_widget.dart';
 
 class BienestarEmocionalScreen extends StatefulWidget {
   const BienestarEmocionalScreen({super.key});
@@ -17,13 +19,118 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   bool _cargando = true;
   bool _cargandoSemaforo = true;
   bool _cargandoGrafica = true;
+  bool _modalMostrado = false; 
   final bienestarService = BienestarService();
   List<DatoGrafica>? _datosSemanales;
 
+  DateTime? _fechaInscripcion;
+  DateTime _fechaInicioSemanaActual = DateTime.now();
+  bool _navegandoEntreSemanas = false;
+
+ 
   @override
   void initState() {
     super.initState();
+    _fechaInicioSemanaActual = _obtenerInicioSemana(DateTime.now());
+    _cargarFechaInscripcion();
     _cargarTodo();
+  }
+
+
+  Future<void> _cargarFechaInscripcion() async {
+    try {
+      _fechaInscripcion = await SecureStorageService.getFechaInscripcion();
+      print('Fecha inscripción cargada: $_fechaInscripcion');
+    } catch (e) {
+      print('Error cargando fecha inscripción: $e');
+    }
+  }
+
+  // Obtener inicio de semana
+  DateTime _obtenerInicioSemana(DateTime fecha) {
+    return fecha.subtract(Duration(days: fecha.weekday - 1));
+  }
+
+  // Verificar si puede ir a la semana anterior
+  bool _puedeIrAnterior() {
+    if (_fechaInscripcion == null) return false;
+    final inicioSemanaInscripcion = _obtenerInicioSemana(_fechaInscripcion!);
+    return _fechaInicioSemanaActual.isAfter(inicioSemanaInscripcion);
+  }
+
+  // Verificar si puede ir a la semana siguiente
+  bool _puedeIrSiguiente() {
+    final inicioSemanaActual = _obtenerInicioSemana(DateTime.now());
+    return _fechaInicioSemanaActual.isBefore(inicioSemanaActual);
+  }
+
+  // Navegar a semana anterior
+  void _semanaAnterior() {
+    if (!_puedeIrAnterior()) return;
+    final nuevaFecha = _fechaInicioSemanaActual.subtract(const Duration(days: 7));
+    _cargarDatosSemanalesPorFecha(nuevaFecha); 
+  }
+
+  //Navegar a semana siguiente
+   void _semanaSiguiente() {
+    if (!_puedeIrSiguiente()) return;
+    final nuevaFecha = _fechaInicioSemanaActual.add(const Duration(days: 7));
+    _cargarDatosSemanalesPorFecha(nuevaFecha); 
+  }
+
+  // Navegar a la semana actual
+   void _irAHoy() {
+    final hoy = _obtenerInicioSemana(DateTime.now());
+    _cargarDatosSemanalesPorFecha(hoy); 
+  }
+
+
+  Future<void> _cargarDatosSemanalesPorFecha(DateTime fechaInicio) async {
+    try {
+      setState(() {
+        _navegandoEntreSemanas = true;
+        _cargandoGrafica = true;
+      });
+
+      final token = await _obtenerToken();
+      if (token != null) {
+        final fechaFin = fechaInicio.add(const Duration(days: 6));
+        
+        final startDate = '${fechaInicio.year}-${fechaInicio.month.toString().padLeft(2, '0')}-${fechaInicio.day.toString().padLeft(2, '0')}';
+        final endDate = '${fechaFin.year}-${fechaFin.month.toString().padLeft(2, '0')}-${fechaFin.day.toString().padLeft(2, '0')}';
+        
+        print('Consultando semana: $startDate al $endDate');
+        
+        final weekData = await bienestarService.obtenerNivelesSemanales(
+          token: token,
+          startDate: startDate,
+          endDate: endDate,
+        );
+        
+        setState(() {
+          _datosSemanales = weekData.toDatosGrafica();
+          _fechaInicioSemanaActual = fechaInicio;
+          _cargandoGrafica = false;
+          _navegandoEntreSemanas = false;
+          _actualizarEstadoCarga();
+        });
+        
+        print('Datos cargados para la gráfica: ${_datosSemanales?.length} días');
+      } else {
+        setState(() {
+          _cargandoGrafica = false;
+          _navegandoEntreSemanas = false;
+          _actualizarEstadoCarga();
+        });
+      }
+    } catch (e) {
+      print('Error cargando datos semanales: $e');
+      setState(() {
+        _cargandoGrafica = false;
+        _navegandoEntreSemanas = false;
+        _actualizarEstadoCarga();
+      });
+    }
   }
 
   Future<void> _cargarTodo() async {
@@ -31,6 +138,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
       _cargando = true;
       _cargandoSemaforo = true;
       _cargandoGrafica = true;
+      _modalMostrado = false; 
     });
     
     await Future.wait([
@@ -50,7 +158,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         final startDate = '${startOfWeek.year}-${startOfWeek.month.toString().padLeft(2, '0')}-${startOfWeek.day.toString().padLeft(2, '0')}';
         final endDate = '${endOfWeek.year}-${endOfWeek.month.toString().padLeft(2, '0')}-${endOfWeek.day.toString().padLeft(2, '0')}';
         
-        print('📅 Consultando niveles emocionales del $startDate al $endDate');
+        print(' Consultando niveles emocionales del $startDate al $endDate');
         
         final weekData = await bienestarService.obtenerNivelesSemanales(
           token: token,
@@ -64,7 +172,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           _actualizarEstadoCarga();
         });
         
-        print('✅ Datos cargados para la gráfica: ${_datosSemanales?.length} días');
+        print(' Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
         setState(() {
           _cargandoGrafica = false;
@@ -72,7 +180,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      print('❌ Error cargando datos semanales: $e');
+      print(' Error cargando datos semanales: $e');
       setState(() {
         _cargandoGrafica = false;
         _actualizarEstadoCarga();
@@ -83,19 +191,35 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   Future<void> _cargarEstadoEmocional() async {
     try {
       final token = await _obtenerToken();
-      print('🔑 Token: ${token != null ? "OK" : "NULL"}');
+      print(' Token: ${token != null ? "OK" : "NULL"}');
       
       if (token != null) {
         final estado = await bienestarService.obtenerEstadoSemaforoSeguro(token);
-        print('🚦 Estado recibido: $estado');
+        print(' Estado recibido: $estado');
         
         setState(() {
-          _estadoActual = estado ?? EstadoSemaforo.verde;
+          //Para pruebas
+           _estadoActual = EstadoSemaforo.rojo;
+          
+          //Producción
+         // _estadoActual = estado ?? EstadoSemaforo.verde;
+          
           _cargandoSemaforo = false;
           _actualizarEstadoCarga();
         });
+
+        // Mostrar modal si está en crisis 
+        if (mounted && _estadoActual == EstadoSemaforo.rojo && !_modalMostrado) {
+          _modalMostrado = true;
+          Future.delayed(const Duration(milliseconds: 300), () {
+            if (mounted) {
+              CrisisModalHelper.showCrisisModal(context);
+            }
+          });
+        }
+
       } else {
-        print('⚠️ No hay token disponible');
+        print(' No hay token disponible');
         setState(() {
           _estadoActual = EstadoSemaforo.verde; 
           _cargandoSemaforo = false;
@@ -103,7 +227,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      print('❌ Error: $e');
+      print(' Error: $e');
       setState(() {
         _estadoActual = EstadoSemaforo.verde; 
         _cargandoSemaforo = false;
@@ -131,7 +255,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
  
   @override
   Widget build(BuildContext context) {
-    print('🔄 Estado: $_estadoActual, Cargando: $_cargando');
+    print('Estado: $_estadoActual, Cargando: $_cargando');
     
     return Scaffold(
       backgroundColor: Colors.white,
@@ -148,13 +272,14 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     );
   }
 
-  // ========== APP BAR ==========
+  // App bar
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     final toolbarHeight = isLandscape ? 100.0 : (isTablet ? 160.0 : 140.0);
+    final iconSize = isTablet ? 22.0 : (isLandscape ? 18.0 : 20.0);
 
     return AppBar(
       backgroundColor: const Color(0xFFF35449),
@@ -173,6 +298,35 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
       ),
       title: _buildAppBarContent(context),
       centerTitle: true,
+      actions: [
+        // Botón SOS 
+        if (_estadoActual == EstadoSemaforo.rojo && !_cargando)
+          Container(
+            margin: EdgeInsets.only(right: isTablet ? 12.0 : 8.0),
+            child: IconButton(
+              icon: Container(
+                padding: EdgeInsets.all(isTablet ? 12.0 : 10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                    width: 2,
+                  ),
+                ),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.white,
+                  size: iconSize,
+                ),
+              ),
+              tooltip: 'Ver recursos de apoyo',
+              onPressed: () {
+                CrisisModalHelper.showCrisisModal(context);
+              },
+            ),
+          ),
+      ],
     );
   }
 
@@ -256,83 +410,121 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     );
   }
 
-  // ========== CUERPO PRINCIPAL ==========
-  Widget _buildBody(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+  // Cuerpo principal
+Widget _buildBody(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isTablet = screenWidth > 600;
+  final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    final maxWidth = isTablet ? 800.0 : screenWidth;
-    final padding = isTablet ? 24.0 : (isLandscape ? 12.0 : 20.0);
-    final spacing = isTablet ? 24.0 : (isLandscape ? 16.0 : 20.0);
+  final maxWidth = isTablet ? 800.0 : screenWidth;
+  final padding = isTablet ? 24.0 : (isLandscape ? 12.0 : 20.0);
+  final spacing = isTablet ? 24.0 : (isLandscape ? 16.0 : 20.0);
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (_cargando)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40),
+  return Center(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_cargando)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Column(
+                      children: [
+                        const CircularProgressIndicator(
+                          color: Color(0xFFF35449),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Analizando tu estado emocional...',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else ...[
+                // Semaforo
+                _buildSectionTitle(
+                  icon: Icons.traffic,
+                  title: 'Estado Emocional Actual',
+                  isTablet: isTablet,
+                  isLandscape: isLandscape,
+                ),
+                SizedBox(height: spacing * 0.5),
+                SemaforoWidget(
+                  estadoActual: _estadoActual ?? EstadoSemaforo.verde,
+                  showAnimation: true,
+                ),
+                
+                SizedBox(height: spacing * 1.5),
+
+                // Grafica con navegación
+                _buildSectionTitle(
+                  icon: Icons.show_chart,
+                  title: 'Evolución Semanal',
+                  isTablet: isTablet,
+                  isLandscape: isLandscape,
+                ),
+                SizedBox(height: spacing * 0.5),
+                
+                // NUEVO: Controles de navegación
+                NavigationControlsWidget(
+                  fechaInicioSemana: _fechaInicioSemanaActual,
+                  puedeAnterior: _puedeIrAnterior(),
+                  puedeSiguiente: _puedeIrSiguiente(),
+                  cargando: _navegandoEntreSemanas,
+                  onAnterior: _semanaAnterior,
+                  onSiguiente: _semanaSiguiente,
+                  onHoy: _irAHoy,
+                ),
+                
+                SizedBox(height: 12),
+                
+                // Tu gráfica actual
+                if (_navegandoEntreSemanas)
+                  Container(
+                    height: 200,
+                    child: Center(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const CircularProgressIndicator(
+                          CircularProgressIndicator(
                             color: Color(0xFFF35449),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                           Text(
-                            'Analizando tu estado emocional...',
+                            'Cargando semana...',
                             style: TextStyle(
                               color: Colors.grey[600],
-                              fontSize: 14,
                             ),
                           ),
                         ],
                       ),
                     ),
                   )
-                else ...[
-                  //  SEMÁFORO EMOCIONAL
-                  _buildSectionTitle(
-                    icon: Icons.traffic,
-                    title: 'Estado Emocional Actual',
-                    isTablet: isTablet,
-                    isLandscape: isLandscape,
-                  ),
-                  SizedBox(height: spacing * 0.5),
-                  SemaforoWidget(
-                    estadoActual: _estadoActual ?? EstadoSemaforo.verde,
-                    showAnimation: true,
-                  ),
-                  
-                  SizedBox(height: spacing * 1.5),
-
-                  //  GRÁFICA DE EVOLUCIÓN
-                  _buildSectionTitle(
-                    icon: Icons.show_chart,
-                    title: 'Evolución Semanal',
-                    isTablet: isTablet,
-                    isLandscape: isLandscape,
-                  ),
-                  SizedBox(height: spacing * 0.5),
+                else
                   GraficaEmocionalWidget(datos: _datosSemanales),
-                  SizedBox(height: spacing),
-                ],
-
-                SizedBox(height: isTablet ? 24 : 16),
+                
+                SizedBox(height: spacing),
               ],
-            ),
+              SizedBox(height: isTablet ? 24 : 16),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildSectionTitle({
     required IconData icon,
@@ -350,7 +542,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           color: const Color(0xFFF35449),
           size: iconSize,
         ),
-        const SizedBox(width: 18),
+        const SizedBox(width: 8),
         Text(
           title,
           style: TextStyle(

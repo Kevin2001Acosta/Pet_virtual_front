@@ -80,7 +80,7 @@ class EstadoSemaforoInfo {
 class DatoGrafica {
   final int dia; // 0 = Lunes, 6 = Domingo
   final double valor; // 1.0 a 5.0 (estado emocional)
-  final String? nota; // Nota opcional del día
+  final String? nota; 
 
   DatoGrafica({
     required this.dia,
@@ -118,7 +118,7 @@ class EmotionalWeekData {
         try {
           data[fecha] = DayEmotionData.fromJson(valor);
         } catch (e) {
-          print('⚠️ Error parseando día $fecha: $e');
+          print(' Error parseando día $fecha: $e');
         }
       }
     });
@@ -136,7 +136,6 @@ class EmotionalWeekData {
       final index = entry.key;  // 0=Lunes, 1=Martes, etc.
       final dayData = entry.value.value;
       
-      // Usar el valor numérico directamente si está disponible
       final valor = dayData.getValorGrafica();
       
       return DatoGrafica(
@@ -152,7 +151,6 @@ class EmotionalWeekData {
   bool get isNotEmpty => weeklyData.isNotEmpty;
 }
 
-// ✅ REEMPLAZAR DayEmotionData
 class DayEmotionData {
   final dynamic emotionLevel; // Puede ser String o int (0)
   final String dayName;

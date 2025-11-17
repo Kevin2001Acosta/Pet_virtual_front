@@ -200,7 +200,6 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
     );
   }
 
-  // Widget mejorado para cada luz del semáforo
   Widget _buildSemaforoLight(
     Color color,
     bool isActive,
@@ -411,6 +410,7 @@ extension ColorExtension on Color {
     return hsl.withLightness(lightness).toColor();
   }
 }
+
 
 
 
