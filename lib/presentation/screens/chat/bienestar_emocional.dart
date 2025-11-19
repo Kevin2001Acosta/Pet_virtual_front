@@ -40,9 +40,9 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   Future<void> _cargarFechaInscripcion() async {
     try {
       _fechaInscripcion = await SecureStorageService.getFechaInscripcion();
-      print('Fecha inscripción cargada: $_fechaInscripcion');
+      debugPrint('Fecha inscripción cargada: $_fechaInscripcion');
     } catch (e) {
-      print('Error cargando fecha inscripción: $e');
+      debugPrint('Error cargando fecha inscripción: $e');
     }
   }
 
@@ -99,7 +99,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         final startDate = '${fechaInicio.year}-${fechaInicio.month.toString().padLeft(2, '0')}-${fechaInicio.day.toString().padLeft(2, '0')}';
         final endDate = '${fechaFin.year}-${fechaFin.month.toString().padLeft(2, '0')}-${fechaFin.day.toString().padLeft(2, '0')}';
         
-        print('Consultando semana: $startDate al $endDate');
+        debugPrint('Consultando semana: $startDate al $endDate');
         
         final weekData = await bienestarService.obtenerNivelesSemanales(
           token: token,
@@ -115,7 +115,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           _actualizarEstadoCarga();
         });
         
-        print('Datos cargados para la gráfica: ${_datosSemanales?.length} días');
+        debugPrint('Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
         setState(() {
           _cargandoGrafica = false;
@@ -124,7 +124,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      print('Error cargando datos semanales: $e');
+      debugPrint('Error cargando datos semanales: $e');
       setState(() {
         _cargandoGrafica = false;
         _navegandoEntreSemanas = false;
@@ -158,7 +158,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         final startDate = '${startOfWeek.year}-${startOfWeek.month.toString().padLeft(2, '0')}-${startOfWeek.day.toString().padLeft(2, '0')}';
         final endDate = '${endOfWeek.year}-${endOfWeek.month.toString().padLeft(2, '0')}-${endOfWeek.day.toString().padLeft(2, '0')}';
         
-        print(' Consultando niveles emocionales del $startDate al $endDate');
+        debugPrint(' Consultando niveles emocionales del $startDate al $endDate');
         
         final weekData = await bienestarService.obtenerNivelesSemanales(
           token: token,
@@ -172,7 +172,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           _actualizarEstadoCarga();
         });
         
-        print(' Datos cargados para la gráfica: ${_datosSemanales?.length} días');
+        debugPrint(' Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
         setState(() {
           _cargandoGrafica = false;
@@ -180,7 +180,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      print(' Error cargando datos semanales: $e');
+      debugPrint(' Error cargando datos semanales: $e');
       setState(() {
         _cargandoGrafica = false;
         _actualizarEstadoCarga();
@@ -191,11 +191,11 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   Future<void> _cargarEstadoEmocional() async {
     try {
       final token = await _obtenerToken();
-      print(' Token: ${token != null ? "OK" : "NULL"}');
+      debugPrint(' Token: ${token != null ? "OK" : "NULL"}');
       
       if (token != null) {
         final estado = await bienestarService.obtenerEstadoSemaforoSeguro(token);
-        print(' Estado recibido: $estado');
+        debugPrint(' Estado recibido: $estado');
         
         setState(() {
           //Para pruebas
@@ -219,7 +219,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         }
 
       } else {
-        print(' No hay token disponible');
+        debugPrint(' No hay token disponible');
         setState(() {
           _estadoActual = EstadoSemaforo.verde; 
           _cargandoSemaforo = false;
@@ -227,7 +227,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      print(' Error: $e');
+      debugPrint(' Error: $e');
       setState(() {
         _estadoActual = EstadoSemaforo.verde; 
         _cargandoSemaforo = false;
@@ -248,29 +248,29 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     try {
       return await SecureStorageService.getToken();
     } catch (e) {
-      print('Error obteniendo token: $e');
+      debugPrint('Error obteniendo token: $e');
       return null;
     }
   }
  
   @override
-  Widget build(BuildContext context) {
-    print('Estado: $_estadoActual, Cargando: $_cargando');
-    
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(context),
-      body: _buildBody(context),
-      floatingActionButton: FloatingActionButton(
-        mini: true,
-        backgroundColor: const Color(0xFFF35449),
-        onPressed: () {
-          _cargarTodo();
-        },
-        child: const Icon(Icons.refresh, color: Colors.white),
-      ),
-    );
-  }
+Widget build(BuildContext context) {
+  debugPrint('Estado: $_estadoActual, Cargando: $_cargando');
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: _buildAppBar(context),
+    body: _buildBody(context),
+    floatingActionButton: FloatingActionButton(
+      mini: true,
+      backgroundColor: const Color(0xFFF35449),
+      onPressed: () {
+        _cargarTodo();
+      },
+      child: const Icon(Icons.refresh, color: Colors.white),
+    ),
+    floatingActionButtonLocation: FloatingActionButtonLocation.endDocked, 
+  );
+}
 
   // App bar
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -315,7 +315,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
                   ),
                 ),
                 child: Icon(
-                  Icons.warning_amber_rounded,
+                  Icons.error,
                   color: Colors.white,
                   size: iconSize,
                 ),
@@ -465,9 +465,9 @@ Widget _buildBody(BuildContext context) {
                   showAnimation: true,
                 ),
                 
-                SizedBox(height: spacing * 1.5),
+                SizedBox(height: spacing * 0.5),
 
-                // Grafica con navegación
+                // Gráfica con navegación
                 _buildSectionTitle(
                   icon: Icons.show_chart,
                   title: 'Evolución Semanal',
@@ -476,7 +476,7 @@ Widget _buildBody(BuildContext context) {
                 ),
                 SizedBox(height: spacing * 0.5),
                 
-                // NUEVO: Controles de navegación
+                // Controles de navegación
                 NavigationControlsWidget(
                   fechaInicioSemana: _fechaInicioSemanaActual,
                   puedeAnterior: _puedeIrAnterior(),
@@ -487,7 +487,7 @@ Widget _buildBody(BuildContext context) {
                   onHoy: _irAHoy,
                 ),
                 
-                SizedBox(height: 12),
+                SizedBox(height: 8),
                 
                 // Tu gráfica actual
                 if (_navegandoEntreSemanas)

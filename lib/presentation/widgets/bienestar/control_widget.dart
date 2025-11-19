@@ -22,95 +22,176 @@ class NavigationControlsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    
+    // Solo mostrar "Hoy" si no estamos en la semana actual
+    final mostrarHoy = _necesitaMostrarHoy();
+    
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: EdgeInsets.symmetric(
+        vertical: isTablet ? 8 : 6,
+        horizontal: isTablet ? 12 : 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Botón semana anterior
-          IconButton(
-            icon: cargando 
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Color(0xFFF35449),
-                    ),
-                  )
-                : Icon(Icons.chevron_left,
-                    color: puedeAnterior ? Color(0xFFF35449) : Colors.grey[400]),
-            onPressed: puedeAnterior && !cargando ? onAnterior : null,
+          _buildNavigationButton(
+            context: context,
+            icon: Icons.chevron_left,
+            enabled: puedeAnterior && !cargando,
+            onPressed: onAnterior,
             tooltip: 'Semana anterior',
+            isTablet: isTablet,
           ),
 
-          // Fecha actual y botón "Hoy"
+          // Fecha actual
           Expanded(
-            child: Column(
-              children: [
-                Text(
-                  _formatearRangoSemana(fechaInicioSemana),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[800],
-                    fontSize: 14,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: isTablet ? 16 : 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _formatearRangoSemanaCompacto(fechaInicioSemana),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[800],
+                      fontSize: isTablet ? 14 : 13,
+                      letterSpacing: 0.2,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                if (!cargando)
-                  GestureDetector(
-                    onTap: onHoy,
-                    child: Text(
-                      'Hoy',
-                      style: TextStyle(
-                        color: Color(0xFFF35449),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  if (mostrarHoy && !cargando) ...[
+                    SizedBox(height: 4),
+                    GestureDetector(
+                      onTap: onHoy,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isTablet ? 10 : 8,
+                          vertical: isTablet ? 3 : 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF35449).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          'Ir a hoy',
+                          style: TextStyle(
+                            color: Color(0xFFF35449),
+                            fontSize: isTablet ? 12 : 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                  ],
+                ],
+              ),
             ),
           ),
 
           // Botón semana siguiente
-          IconButton(
-            icon: cargando
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Color(0xFFF35449),
-                    ),
-                  )
-                : Icon(Icons.chevron_right,
-                    color: puedeSiguiente ? Color(0xFFF35449) : Colors.grey[400]),
-            onPressed: puedeSiguiente && !cargando ? onSiguiente : null,
+          _buildNavigationButton(
+            context: context,
+            icon: Icons.chevron_right,
+            enabled: puedeSiguiente && !cargando,
+            onPressed: onSiguiente,
             tooltip: 'Semana siguiente',
+            isTablet: isTablet,
           ),
         ],
       ),
     );
   }
 
-  String _formatearRangoSemana(DateTime fechaInicio) {
+  bool _necesitaMostrarHoy() {
+    final inicioSemanaActual = _obtenerInicioSemana(DateTime.now());
+    return !_mismaSemana(fechaInicioSemana, inicioSemanaActual);
+  }
+
+  DateTime _obtenerInicioSemana(DateTime fecha) {
+    return fecha.subtract(Duration(days: fecha.weekday - 1));
+  }
+
+  bool _mismaSemana(DateTime fecha1, DateTime fecha2) {
+    final inicio1 = _obtenerInicioSemana(fecha1);
+    final inicio2 = _obtenerInicioSemana(fecha2);
+    return inicio1.year == inicio2.year && 
+           inicio1.month == inicio2.month && 
+           inicio1.day == inicio2.day;
+  }
+
+  Widget _buildNavigationButton({
+    required BuildContext context,
+    required IconData icon,
+    required bool enabled,
+    required VoidCallback onPressed,
+    required String tooltip,
+    required bool isTablet,
+  }) {
+    return Container(
+      width: isTablet ? 36 : 32,
+      height: isTablet ? 36 : 32,
+      decoration: BoxDecoration(
+        color: enabled 
+            ? Color(0xFFF35449).withOpacity(0.1)
+            : Colors.grey[100],
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: enabled 
+              ? Color(0xFFF35449).withOpacity(0.3)
+              : Colors.grey[300]!,
+          width: 1,
+        ),
+      ),
+      child: IconButton(
+        icon: cargando 
+            ? SizedBox(
+                width: isTablet ? 16 : 14,
+                height: isTablet ? 16 : 14,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.5,
+                  color: Color(0xFFF35449),
+                ),
+              )
+            : Icon(
+                icon,
+                color: enabled ? Color(0xFFF35449) : Colors.grey[400],
+                size: isTablet ? 20 : 18,
+              ),
+        onPressed: enabled ? onPressed : null,
+        tooltip: tooltip,
+        padding: EdgeInsets.zero,
+        iconSize: isTablet ? 20 : 18,
+      ),
+    );
+  }
+
+  String _formatearRangoSemanaCompacto(DateTime fechaInicio) {
     final fechaFin = fechaInicio.add(const Duration(days: 6));
     
+    // Formato  "17-23 Dic 2023"
+    final mesInicio = _nombreMesCorto(fechaInicio.month);
+    final mesFin = _nombreMesCorto(fechaFin.month);
+    
     if (fechaInicio.month == fechaFin.month) {
-      return '${fechaInicio.day} - ${fechaFin.day} ${_nombreMes(fechaInicio.month)} ${fechaInicio.year}';
+      return '${fechaInicio.day}-${fechaFin.day} $mesInicio ${fechaInicio.year}';
     } else {
-      return '${fechaInicio.day} ${_nombreMes(fechaInicio.month)} - ${fechaFin.day} ${_nombreMes(fechaFin.month)} ${fechaInicio.year}';
+      return '${fechaInicio.day} $mesInicio - ${fechaFin.day} $mesFin ${fechaInicio.year}';
     }
   }
 
-  String _nombreMes(int mes) {
+  String _nombreMesCorto(int mes) {
     const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
     return meses[mes - 1];
   }
