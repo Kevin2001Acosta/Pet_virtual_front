@@ -116,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         }
       }
     } catch (e) {
-      print('Error completo: $e');
+      debugPrint('Error completo: $e');
       if (mounted) {
         showErrorDialog(
           context: context,
@@ -187,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -256,9 +256,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
  
   Widget _buildHeader(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final isTablet = screenWidth > 600;
-
+  
   return Column(
     mainAxisAlignment: MainAxisAlignment.center,
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -410,7 +408,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color.fromARGB(255, 243, 84, 73).withOpacity(0.4),
+                                    color: const Color.fromARGB(255, 243, 84, 73).withValues(alpha: 0.4),
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),

@@ -6,9 +6,10 @@ class GraficaEmocionalWidget extends StatelessWidget {
   final List<DatoGrafica>? datos;
 
   const GraficaEmocionalWidget({
-    Key? key,  
-    this.datos,
-  }) : super(key: key);  
+  super.key,
+  this.datos,
+});
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class GraficaEmocionalWidget extends StatelessWidget {
     final isTablet = screenWidth > 600;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
-    final titleFontSize = isTablet ? 20.0 : (isLandscape ? 14.0 : 16.0);
+    
     final padding = isTablet ? 24.0 : (isLandscape ? 14.0 : 18.0);
     final chartHeight = isTablet ? 250.0 : (isLandscape ? 180.0 : 200.0);
     final borderRadius = isTablet ? 25.0 : 20.0;
@@ -41,8 +42,8 @@ class GraficaEmocionalWidget extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFFF35449).withOpacity(0.08),
-            const Color(0xFFF35449).withOpacity(0.03),
+            const Color(0xFFF35449).withValues(alpha: 0.08),
+            const Color(0xFFF35449).withValues(alpha: 0.03),
           ],
           stops: const [0.0, 1.0],
         ),
@@ -50,7 +51,7 @@ class GraficaEmocionalWidget extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -79,7 +80,7 @@ class GraficaEmocionalWidget extends StatelessWidget {
           horizontalInterval: 1,
           getDrawingHorizontalLine: (value) {
             return FlLine(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               strokeWidth: 1,
             );
           },
@@ -163,7 +164,7 @@ class GraficaEmocionalWidget extends StatelessWidget {
             ),
             belowBarData: BarAreaData(
               show: true,
-              color: const Color(0xFFF35449).withOpacity(0.1),
+              color: const Color(0xFFF35449).withValues(alpha: 0.1),
             ),
           ),
         ],

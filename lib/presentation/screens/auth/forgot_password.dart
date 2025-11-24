@@ -69,7 +69,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -174,6 +174,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
     );
   }
 
+  /*
   Future<void> _sendResetLink() async {
     if (_emailController.text.isEmpty) {
       showErrorDialog(
@@ -225,6 +226,66 @@ class _ForgotScreenState extends State<ForgotScreen> {
       );
     }
   }
+  */
+
+
+ Future<void> _sendResetLink() async {
+  if (_emailController.text.isEmpty) {
+    if (!mounted) return; 
+    showErrorDialog(
+      context: context,
+      title: 'Campos requeridos',
+      message: 'Por favor ingresa tu correo electrónico',
+    );
+    return;
+  }
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    final result = await _authService.sendPasswordResetLink(
+      _emailController.text,
+    );
+
+    if (!mounted) return; 
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result['success'] == true) {
+      showSuccessDialog(
+        context: context,
+        title: 'Correo enviado',
+        message: result['message'] ??
+            'Se ha enviado un enlace de recuperación a tu correo electrónico.',
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+    } else {
+      showErrorDialog(
+        context: context,
+        title: 'Error',
+        message: result['error'] ??
+            'Ocurrió un error desconocido al enviar el correo',
+      );
+    }
+  } catch (e) {
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    showErrorDialog(
+      context: context,
+      title: 'Error de conexión',
+      message: 'No se pudo conectar con el servidor: $e',
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +365,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color.fromARGB(255, 243, 84, 73).withOpacity(0.4),
+                            color: const Color.fromARGB(255, 243, 84, 73).withValues(alpha: 0.4),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),

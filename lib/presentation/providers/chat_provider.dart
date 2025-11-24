@@ -71,8 +71,8 @@ class ChatProvider extends ChangeNotifier {
       _stopTyping();
       messageList.add(herMessage);
       setEmotion(herMessage.emotion);
-      print(herMessage.text);
-      print(herMessage.imageUrl);
+      debugPrint(herMessage.text);
+      debugPrint(herMessage.imageUrl);
     } on DioException catch (e) { 
       _stopTyping();
 
@@ -121,7 +121,7 @@ class ChatProvider extends ChangeNotifier {
       final Map<String, dynamic> result = await getIAAnswer.getMessages(token);
       messageList = result['messages'] as List<Message>;
       _petName = result['petName'] as String? ?? 'Mascota Virtual';
-      print('Pet name cargado: $_petName');
+      debugPrint('Pet name cargado: $_petName');
     } on DioException catch (e) { 
       if (e.response?.statusCode == 401) {
         _sessionExpired = true;
@@ -133,7 +133,7 @@ class ChatProvider extends ChangeNotifier {
         ),
       );
     } catch (e) {
-      print('Error en loadMessages: $e');
+      debugPrint('Error en loadMessages: $e');
       messageList.add(
         Message(
           text: 'Error cargando mensajes: ${e.toString()}',

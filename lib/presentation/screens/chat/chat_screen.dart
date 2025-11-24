@@ -42,7 +42,7 @@ class ChatScreen extends StatelessWidget {
     return AppBar(
       backgroundColor: const Color(0xFFF35449),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       toolbarHeight: toolbarHeight,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
@@ -50,10 +50,10 @@ class ChatScreen extends StatelessWidget {
         icon: Container(
           padding: EdgeInsets.all(isTablet ? 12.0 : 10.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.white.withOpacity(0.3),
+              color: Colors.white.withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -83,10 +83,10 @@ class ChatScreen extends StatelessWidget {
             icon: Container(
               padding: EdgeInsets.all(isTablet ? 12.0 : 10.0),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -152,7 +152,7 @@ class ChatScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.greenAccent.withOpacity(0.5),
+                    color: Colors.greenAccent.withValues(alpha: 0.5),
                     blurRadius: 4,
                     spreadRadius: 1,
                   ),
@@ -165,7 +165,7 @@ class ChatScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.w400,
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
               ),
             ),
           ],
@@ -174,7 +174,8 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  /// Diálogo para cerrar sesión mejorado
+  /*
+  /// Diálogo para cerrar sesión 
   void _showLogoutDialog(BuildContext context) {
     showInfoDialog(
       context: context,
@@ -187,6 +188,29 @@ class ChatScreen extends StatelessWidget {
         final authService = AuthService();
         await authService.logout();
         Navigator.pushReplacementNamed(context, '/login');
+      },
+    );
+  }
+}
+*/
+  void _showLogoutDialog(BuildContext context) {
+    showInfoDialog(
+      context: context,
+      title: 'Cerrar sesión',
+      message: '¿Estás seguro de que quieres cerrar sesión?',
+      buttonText: 'Cancelar',
+      secondaryButtonText: 'Cerrar sesión',
+      onPressed: () {},
+      onSecondaryPressed: () async {
+        final authService = AuthService();
+
+        // 👇 Guardas el navigator ANTES del await
+        final navigator = Navigator.of(context);
+
+        await authService.logout();
+
+        // 👇 Usas navigator, no context
+        navigator.pushReplacementNamed('/login');
       },
     );
   }
@@ -358,7 +382,7 @@ class _ChatViewState extends State<_ChatView> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: isTablet ? 12 : 8,
                                 offset: const Offset(0, 4),
                               ),
@@ -414,6 +438,7 @@ class _ChatViewState extends State<_ChatView> {
                         child: MessageFieldBox(
                           onValue: (value) =>
                               chatProvider.sendMessage(value, widget.token),
+                              enabled: !chatProvider.isLoading,
                         ),
                       ),
                     ],

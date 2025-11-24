@@ -1,43 +1,41 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rive/rive.dart';
 
-// Emociones soportadas por la máquina de estados en Rive
 enum Emotion { joy, surprise, sadness, disgust, anger, respirar }
 
 Emotion parseEmotion(String value) {
   switch (value.toLowerCase()) {
-      case 'joy':
-      return Emotion.joy;
-      case 'surprise':
-      return Emotion.surprise;
-      case 'sadness':
-      return Emotion.sadness;
-      case 'disgust':
-      return Emotion.disgust;
-      case 'anger':
-      return Emotion.anger;
-    default:
-      return Emotion.respirar;
+    case 'joy': return Emotion.joy;
+    case 'surprise': return Emotion.surprise;
+    case 'sadness': return Emotion.sadness;
+    case 'disgust': return Emotion.disgust;
+    case 'anger': return Emotion.anger;
+    default: return Emotion.respirar;
   }
 }
 
 class MascotaAnimation extends StatefulWidget {
   final bool isSpeaking;
-  final double? size; 
-  final String currentEmotion; 
-  final double sizePercentage; 
-  final double minSize; 
-  final double maxSize; 
+  final double? size;
+  final String currentEmotion;
+  final double sizePercentage;
+  final double minSize;
+  final double maxSize;
+  final Duration emotionDuration;
+  final bool autoReturnToIdle;
 
   const MascotaAnimation({
     super.key,
     required this.isSpeaking,
-    this.size, 
+    this.size,
     required this.currentEmotion,
-    this.sizePercentage = 0.35, 
+    this.sizePercentage = 0.35,
     this.minSize = 100.0,
-    this.maxSize = 400.0, 
+    this.maxSize = 400.0,
+    this.emotionDuration = const Duration(seconds: 5),
+    this.autoReturnToIdle = true,
   });
 
   @override
@@ -50,17 +48,18 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   bool _isLoading = true;
   bool _hasError = false;
 
-  // Constantes de configuración
-  static const String _nombreArtboard = "Artboard"; 
+  static const String _nombreArtboard = "Artboard";
   static const String _nombreMaquinaEstado = "Emociones";
   static const String _rutaAssetRive = 'assets/rive/animacion.riv';
 
-  // Inputs
-  SMIBool? _joyInput;        
-  SMIBool? _surpriseInput;   
-  SMIBool? _sadnessInput;    
-  SMIBool? _disgustInput;   
-  SMIBool? _angerInput;      
+  SMIBool? _joyInput;
+  SMIBool? _surpriseInput;
+  SMIBool? _sadnessInput;
+  SMIBool? _disgustInput;
+  SMIBool? _angerInput;
+
+  Timer? _emotionTimer;
+  Emotion _currentDisplayedEmotion = Emotion.respirar;
 
   @override
   void initState() {
@@ -71,119 +70,122 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   @override
   void didUpdateWidget(covariant MascotaAnimation oldWidget) {
     super.didUpdateWidget(oldWidget);
+    
     if (oldWidget.currentEmotion != widget.currentEmotion) {
-      debugPrint(" Emoción cambiada: ${oldWidget.currentEmotion} → ${widget.currentEmotion}");
-      _setEmotionFromString(widget.currentEmotion);
+      final newEmotion = parseEmotion(widget.currentEmotion);
+      debugPrint(" Emoción cambió: ${oldWidget.currentEmotion} → ${widget.currentEmotion}");
+      _showEmotionTemporarily(newEmotion);
     }
-  
+    
     if (oldWidget.isSpeaking != widget.isSpeaking) {
-      _updateAnimation();
+      _handleSpeakingChange();
     }
   }
 
-  void _setEmotionFromString(String emotion) {
-    debugPrint(" Aplicando emoción desde widget: $emotion");
-    _applyEmotion(parseEmotion(emotion));
+  void _showEmotionTemporarily(Emotion emotion) {
+    _emotionTimer?.cancel();
+    
+    
+    if (emotion == Emotion.respirar) {
+      _applyEmotion(Emotion.respirar);
+      return;
+    }
+    
+   
+    if (_currentDisplayedEmotion == emotion) {
+      debugPrint(" Misma emoción ($emotion), solo reiniciando timer");
+      _startReturnTimer();
+      return;
+    }
+    
+    _applyEmotion(emotion);
+    _startReturnTimer();
+  }
+
+  void _startReturnTimer() {
+    if (!widget.autoReturnToIdle) return;
+    
+    _emotionTimer = Timer(widget.emotionDuration, () {
+      if (mounted && !widget.isSpeaking) {
+        debugPrint(" Volviendo a respirar...");
+        _applyEmotion(Emotion.respirar);
+      }
+    });
+  }
+
+  void _handleSpeakingChange() {
+    _emotionTimer?.cancel();
+    
+    if (widget.isSpeaking) {
+      _applyEmotion(Emotion.respirar);
+    } else {
+      final emotion = parseEmotion(widget.currentEmotion);
+      _showEmotionTemporarily(emotion);
+    }
   }
 
   void _applyEmotion(Emotion emotion) {
-    switch (emotion) {
-      case Emotion.joy:
-        _setJoy();
-        return;
-      case Emotion.surprise:
-        _setSurprise();
-        return;
-      case Emotion.sadness:
-        _setSadness();
-        return;
-      case Emotion.disgust:
-        _setDisgust();
-        return;
-      case Emotion.anger:
-        _setAnger();
-        return;
-      case Emotion.respirar:
-        _setRespirar();
-        return;
-    }
+    debugPrint(" Aplicando: $emotion (anterior: $_currentDisplayedEmotion)");
+    
+    _joyInput?.value = (emotion == Emotion.joy);
+    _surpriseInput?.value = (emotion == Emotion.surprise);
+    _sadnessInput?.value = (emotion == Emotion.sadness);
+    _disgustInput?.value = (emotion == Emotion.disgust);
+    _angerInput?.value = (emotion == Emotion.anger);
+    
+    _currentDisplayedEmotion = emotion;
+    
+    debugPrint("   Joy=${_joyInput?.value}, Surprise=${_surpriseInput?.value}, "
+        "Sadness=${_sadnessInput?.value}, Disgust=${_disgustInput?.value}, "
+        "Anger=${_angerInput?.value}");
   }
 
   Future<void> _initializeRive() async {
-    await RiveFile.initialize(); 
+    await RiveFile.initialize();
     _loadRiveFile();
   }
 
   Future<void> _loadRiveFile() async {
     try {
-      debugPrint("Cargando archivo Rive....");
+      debugPrint(" Cargando Rive...");
       final bytes = await rootBundle.load(_rutaAssetRive);
       final file = RiveFile.import(bytes);
       final artboard = file.artboardByName(_nombreArtboard) ?? file.mainArtboard;
 
-      if (artboard == null) {
-        debugPrint(" No se encontró el artboard $_nombreArtboard");
-        _setError();
-        return;
-      }
-
-      debugPrint(" Artboard encontrado: ${artboard.name}");
-
-      _controller = StateMachineController.fromArtboard(
-        artboard,
-        _nombreMaquinaEstado,
-      );
+      _controller = StateMachineController.fromArtboard(artboard, _nombreMaquinaEstado);
 
       if (_controller != null) {
         artboard.addController(_controller!);
-
-        debugPrint(" Controlador cargado. Inputs encontrados:");
+        
+        debugPrint("📋 Inputs encontrados:");
         for (final input in _controller!.inputs) {
           debugPrint("   - ${input.name} (${input.runtimeType})");
           if (input is SMIBool) {
             switch (input.name) {
-              case 'Joy':        
-                _joyInput = input;
-                debugPrint("    Joy encontrado");
-                break;
-              case 'Surprise':  
-                _surpriseInput = input;
-                debugPrint("   Surprise encontrado");
-                break;
-              case 'Sadness':   
-                _sadnessInput = input;
-                debugPrint("   Sadness encontrado");
-                break;
-              case 'Disgust':   
-                _disgustInput = input;
-                debugPrint("   Disgust encontrado");
-                break;
-              case 'Anger':    
-                _angerInput = input;
-                debugPrint("   Anger encontrado");
-                break;
+              case 'Joy': _joyInput = input; break;
+              case 'Surprise': _surpriseInput = input; break;
+              case 'Sadness': _sadnessInput = input; break;
+              case 'Disgust': _disgustInput = input; break;
+              case 'Anger': _angerInput = input; break;
             }
           }
         }
-
-        assert(
-          _joyInput != null &&
-              _surpriseInput != null &&
-              _sadnessInput != null &&
-              _disgustInput != null &&
-              _angerInput != null,
-          'Faltan inputs de la StateMachine en Rive. Verifica los nombres de las entradas.'
-        );
         
-        // APLICAR LA EMOCIÓN INICIAL
+        // Verificar que todos los inputs se encontraron
+        debugPrint(" Inputs asignados: Joy=${_joyInput != null}, "
+            "Surprise=${_surpriseInput != null}, Sadness=${_sadnessInput != null}, "
+            "Disgust=${_disgustInput != null}, Anger=${_angerInput != null}");
+
+        // Aplicar emoción inicial
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            _setEmotionFromString(widget.currentEmotion);
+            final initial = parseEmotion(widget.currentEmotion);
+            debugPrint(" Emoción inicial: $initial");
+            _showEmotionTemporarily(initial);
           }
         });
-        
       } else {
-        debugPrint("No se encontró la máquina de estados $_nombreMaquinaEstado");
+        debugPrint(" No se encontró StateMachine: $_nombreMaquinaEstado");
       }
 
       setState(() {
@@ -191,127 +193,56 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint(" Error cargando Rive: $e");
-      _setError();
-    }
-  }
-
-  void _setError() {
-    setState(() {
-      _isLoading = false;
-      _hasError = true;
-    });
-  }
-
-  // MÉTODOS DE EMOCIONES
-  void _setJoy() {
-    debugPrint(" Activando estado: Joy");
-    _resetAllEmotions();
-    _joyInput?.value = true;
-  }
-
-  void _setSurprise() {
-    debugPrint(" Activando estado: Surprise");
-    _resetAllEmotions();
-    _surpriseInput?.value = true;
-  }
-
-  void _setSadness() {
-    debugPrint(" Activando estado: Sadness");
-    _resetAllEmotions();
-    _sadnessInput?.value = true;
-  }
-
-  void _setRespirar() {
-    debugPrint(" Activando estado: Respirar");
-    _resetAllEmotions();
-  }
-
-  void _setDisgust() {
-    debugPrint(" Activando estado: Disgust");
-    _resetAllEmotions();
-    _disgustInput?.value = true;
-  }
-
-  void _setAnger() {
-    debugPrint(" Activando estado: Anger");
-    _resetAllEmotions();
-    _angerInput?.value = true;
-  }
-
-  void _resetAllEmotions() {
-    _joyInput?.value = false;
-    _surpriseInput?.value = false;
-    _sadnessInput?.value = false;
-    _disgustInput?.value = false;
-    _angerInput?.value = false;
-  }
-
-  void _updateAnimation() {
-    if (widget.isSpeaking) {
-      _setRespirar();
-    } else {
-      _setEmotionFromString(widget.currentEmotion);
+      debugPrint(" Error: $e");
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
     }
   }
 
   @override
   void dispose() {
+    _emotionTimer?.cancel();
     _controller?.dispose();
     super.dispose();
   }
 
-  
   double _getResponsiveSize(BuildContext context) {
-  
-    if (widget.size != null) {
-      return widget.size!;
-    }
-
-    
+    if (widget.size != null) return widget.size!;
     final screenWidth = MediaQuery.of(context).size.width;
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
-    
-    
-    double percentage = widget.sizePercentage;
-    if (isPortrait) {
-      percentage = (widget.sizePercentage * 1.3).clamp(0.25, 0.6); 
-    }
-    
-    final calculatedSize = screenWidth * percentage;
-    
-    
-    return calculatedSize.clamp(widget.minSize, widget.maxSize);
+    double pct = isPortrait 
+        ? (widget.sizePercentage * 1.3).clamp(0.25, 0.6)
+        : widget.sizePercentage;
+    return (screenWidth * pct).clamp(widget.minSize, widget.maxSize);
   }
 
   @override
   Widget build(BuildContext context) {
     final size = _getResponsiveSize(context);
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final finalSize = size.clamp(0.0, constraints.maxWidth).clamp(0.0, constraints.maxHeight);
-        
-    if (_isLoading) {
-      return SizedBox(
+
+        if (_isLoading) {
+          return SizedBox(
             width: finalSize,
             height: finalSize,
             child: const Center(child: CircularProgressIndicator(strokeWidth: 2.5)),
-      );
-    }
+          );
+        }
 
-    if (_hasError || _mascotaArtboard == null) {
+        if (_hasError || _mascotaArtboard == null) {
           return _buildErrorWidget(finalSize);
-    }
+        }
 
-    return SizedBox(
+        return SizedBox(
           width: finalSize,
           height: finalSize,
           child: RepaintBoundary(
-      child: Rive(
-        artboard: _mascotaArtboard!,
-        fit: BoxFit.contain,
-      ),
+            child: Rive(artboard: _mascotaArtboard!, fit: BoxFit.contain),
           ),
         );
       },
@@ -319,39 +250,21 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   }
 
   Widget _buildErrorWidget(double size) {
-    final iconSize = (size * 0.2).clamp(24.0, 60.0);
-    final fontSize = (size * 0.06).clamp(10.0, 16.0);
-    final borderRadius = (size * 0.06).clamp(8.0, 16.0);
-    
     return SizedBox(
       width: size,
       height: size,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(size * 0.06),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: iconSize),
+            Icon(Icons.error_outline, color: Colors.red, size: size * 0.2),
             SizedBox(height: size * 0.04),
-            Text(
-              'Error al cargar la animación', 
-              style: TextStyle(
-                color: Colors.red, 
-                fontSize: fontSize,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: size * 0.04),
-            TextButton(
-              onPressed: _loadRiveFile, 
-              child: Text(
-                'Reintentar',
-                style: TextStyle(fontSize: fontSize * 0.9),
-              ),
-            ),
+            Text('Error al cargar', style: TextStyle(fontSize: size * 0.06)),
+            TextButton(onPressed: _loadRiveFile, child: const Text('Reintentar')),
           ],
         ),
       ),

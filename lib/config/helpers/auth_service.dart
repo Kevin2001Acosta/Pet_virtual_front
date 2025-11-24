@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:yes_no_app/config/constants.dart';
 import 'package:yes_no_app/infrastructure/models/auth_model.dart';
-import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
+import 'package:yes_no_app/config/helpers/secure_storage_service.dart';
 
 class AuthService {
   final Dio _dio = Dio(

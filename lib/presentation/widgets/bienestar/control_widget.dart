@@ -10,7 +10,7 @@ class NavigationControlsWidget extends StatelessWidget {
   final VoidCallback onHoy;
 
   const NavigationControlsWidget({
-    Key? key,
+    super.key,
     required this.fechaInicioSemana,
     required this.puedeAnterior,
     required this.puedeSiguiente,
@@ -18,13 +18,13 @@ class NavigationControlsWidget extends StatelessWidget {
     required this.onAnterior,
     required this.onSiguiente,
     required this.onHoy,
-  }) : super(key: key);
+  }) ;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    //final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
     // Solo mostrar "Hoy" si no estamos en la semana actual
     final mostrarHoy = _necesitaMostrarHoy();
@@ -81,7 +81,7 @@ class NavigationControlsWidget extends StatelessWidget {
                           vertical: isTablet ? 3 : 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Color(0xFFF35449).withOpacity(0.1),
+                          color: Color(0xFFF35449).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -144,12 +144,12 @@ class NavigationControlsWidget extends StatelessWidget {
       height: isTablet ? 36 : 32,
       decoration: BoxDecoration(
         color: enabled 
-            ? Color(0xFFF35449).withOpacity(0.1)
+            ? Color(0xFFF35449).withValues(alpha: 0.1)
             : Colors.grey[100],
         shape: BoxShape.circle,
         border: Border.all(
           color: enabled 
-              ? Color(0xFFF35449).withOpacity(0.3)
+              ? Color(0xFFF35449).withValues(alpha: 0.3)
               : Colors.grey[300]!,
           width: 1,
         ),

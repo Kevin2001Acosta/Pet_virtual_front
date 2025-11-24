@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
+import 'package:yes_no_app/config/helpers/secure_storage_service.dart';
 import 'package:yes_no_app/config/constants.dart';
 import 'package:yes_no_app/domain/entities/message.dart';
 import 'package:yes_no_app/infrastructure/models/ia_answer.dart';

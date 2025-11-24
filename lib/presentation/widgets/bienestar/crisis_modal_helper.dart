@@ -52,7 +52,7 @@ class CrisisModalHelper {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -79,7 +79,7 @@ class CrisisModalHelper {
                       'Universidad del Valle - Sede Tuluá',
                       style: TextStyle(
                         fontSize: bodyFontSize,
-                        color: Colors.white.withOpacity(0.95),
+                        color: Colors.white.withValues(alpha: 0.95),
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
@@ -114,12 +114,12 @@ class CrisisModalHelper {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color(0xFFF35449).withOpacity(0.3),
+                            color: const Color(0xFFF35449).withValues(alpha: 0.3),
                             width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFF35449).withOpacity(0.1),
+                              color: const Color(0xFFF35449).withValues(alpha: 0.1),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -133,7 +133,7 @@ class CrisisModalHelper {
                                 Container(
                                   padding: EdgeInsets.all(isTablet ? 12.0 : 10.0),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF35449).withOpacity(0.1),
+                                    color: const Color(0xFFF35449).withValues(alpha: 0.1),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(

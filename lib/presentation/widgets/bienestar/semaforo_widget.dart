@@ -72,30 +72,30 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
             end: Alignment.bottomRight,
             colors: [
               Colors.white,
-              estadoInfo.color.withOpacity(0.08),
+              estadoInfo.color.withValues(alpha: 0.08),
             ],
           ),
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
-            color: estadoInfo.color.withOpacity(0.4),
+            color: estadoInfo.color.withValues(alpha: 0.4),
             width: 2.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 15,
               offset: const Offset(0, 6),
               spreadRadius: -2,
             ),
            
             BoxShadow(
-              color: estadoInfo.color.withOpacity(0.2),
+              color: estadoInfo.color.withValues(alpha: 0.2),
               blurRadius: 30,
               offset: const Offset(0, 10),
               spreadRadius: -5,
             ),
             BoxShadow(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               blurRadius: 0,
               offset: const Offset(0, -1),
               spreadRadius: 0,
@@ -160,13 +160,13 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.4),
+            color: Colors.black.withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 6),
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.1),
+            color: Colors.white.withValues(alpha: 0.1),
             blurRadius: 0,
             offset: const Offset(0, -1),
           ),
@@ -224,8 +224,8 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
                         color.darken(0.1),
                       ]
                     : [
-                        color.withOpacity(0.15),
-                        color.withOpacity(0.08),
+                        color.withValues(alpha: 0.15),
+                        color.withValues(alpha: 0.08),
                       ],
                 stops: isActive
                     ? const [0.0, 0.6, 1.0]  
@@ -240,17 +240,17 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
               boxShadow: isActive
                   ? [
                       BoxShadow(
-                        color: color.withOpacity(0.8),
+                        color: color.withValues(alpha: 0.8),
                         blurRadius: 20,
                         spreadRadius: 4,
                       ),
                       BoxShadow(
-                        color: color.withOpacity(0.6),
+                        color: color.withValues(alpha: 0.6),
                         blurRadius: 12,
                         spreadRadius: 2,
                       ),
                       BoxShadow(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(-2, -2),
                         spreadRadius: -2,
@@ -258,7 +258,7 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
                     ]
                   : [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                         spreadRadius: -1,
@@ -277,7 +277,7 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
                       height: size * 0.3,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                       ),
                     ),
                   ),
@@ -290,11 +290,11 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
                   shadows: isActive
                       ? [
                           Shadow(
-                            color: color.withOpacity(0.8),
+                            color: color.withValues(alpha: 0.8),
                             blurRadius: 8,
                           ),
                           Shadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 1),
                           ),
@@ -327,15 +327,15 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    estadoInfo.color.withOpacity(0.2),
-                    estadoInfo.color.withOpacity(0.1),
+                    estadoInfo.color.withValues(alpha: 0.2),
+                    estadoInfo.color.withValues(alpha: 0.3),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(isTablet ? 14.0 : 12.0),
                 border: Border.all(
-                  color: estadoInfo.color.withOpacity(0.3),
+                  color: estadoInfo.color.withValues(alpha: 0.3),
                   width: 1.5,
                 ),
               ),
@@ -369,7 +369,7 @@ class _SemaforoWidgetState extends State<SemaforoWidget>
                       letterSpacing: 0.3,
                       shadows: [
                         Shadow(
-                          color: estadoInfo.color.withOpacity(0.2),
+                          color: estadoInfo.color.withValues(alpha: 0.2),
                           blurRadius: 6,
                         ),
                       ],
@@ -410,7 +410,6 @@ extension ColorExtension on Color {
     return hsl.withLightness(lightness).toColor();
   }
 }
-
 
 
 

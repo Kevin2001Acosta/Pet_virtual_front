@@ -3,7 +3,7 @@ import 'package:yes_no_app/presentation/widgets/bienestar/semaforo_widget.dart';
 import 'package:yes_no_app/config/helpers/bienestar_service.dart'; 
 import 'package:yes_no_app/presentation/widgets/bienestar/grafica_emocional_widget.dart';
 import 'package:yes_no_app/infrastructure/models/bienestar_model.dart';
-import 'package:yes_no_app/config/helpers/secureStorage_service.dart';
+import 'package:yes_no_app/config/helpers/secure_storage_service.dart';
 import 'package:yes_no_app/presentation/widgets/bienestar/crisis_modal_helper.dart';
 import 'package:yes_no_app/presentation/widgets/bienestar/control_widget.dart';
 
@@ -284,7 +284,7 @@ Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: const Color(0xFFF35449),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       toolbarHeight: toolbarHeight,
       automaticallyImplyLeading: false,
       titleSpacing: 0,
@@ -307,10 +307,10 @@ Widget build(BuildContext context) {
               icon: Container(
                 padding: EdgeInsets.all(isTablet ? 12.0 : 10.0),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 2,
                   ),
                 ),
@@ -351,12 +351,12 @@ Widget build(BuildContext context) {
           width: avatarSize,
           height: avatarSize,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: borderWidth),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: isTablet ? 12 : 8,
                 offset: const Offset(0, 2),
               ),
@@ -369,7 +369,7 @@ Widget build(BuildContext context) {
                 'assets/images/mascota.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   child: Icon(
                     Icons.emoji_emotions,
                     color: Colors.white,
@@ -401,7 +401,7 @@ Widget build(BuildContext context) {
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 fontSize: subtitleFontSize,
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
               ),
             ),
           ],
@@ -491,7 +491,7 @@ Widget _buildBody(BuildContext context) {
                 
                 // Tu gráfica actual
                 if (_navegandoEntreSemanas)
-                  Container(
+                  SizedBox(
                     height: 200,
                     child: Center(
                       child: Column(
