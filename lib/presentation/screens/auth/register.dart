@@ -62,8 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   }
 
   Future<void> _registerUser() async {
-    debugPrint('Botón presionado');
-
+    
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
@@ -75,6 +74,42 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       return;
     }
 
+    final password = _passwordController.text;
+    if (password.length < 8) {
+      showErrorDialog(
+        context: context,
+        title: 'Contraseña muy corta',
+        message: 'La contraseña debe tener al menos 8 caracteres',
+      );
+      return;
+   }
+
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta mayúscula',
+      message: 'La contraseña debe contener al menos una letra mayúscula',
+    );
+    return;
+  }
+
+  if (!password.contains(RegExp(r'[a-z]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta minúscula', 
+      message: 'La contraseña debe contener al menos una letra minúscula',
+    );
+    return;
+  }
+
+  if (!password.contains(RegExp(r'[0-9]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta número',
+      message: 'La contraseña debe contener al menos un dígito',
+    );
+    return;
+  }
     setState(() => _isLoading = true);
 
     try {
@@ -94,7 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
       if (response['success'] == true) {
         if (mounted) {
-          showErrorDialog(
+          showSuccessDialog(
             context: context,
             title: 'Éxito',
             message: response['message'] ?? 'Cuenta registrada con éxito',

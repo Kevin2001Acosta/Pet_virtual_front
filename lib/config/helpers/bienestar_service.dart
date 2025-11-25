@@ -17,17 +17,15 @@ class BienestarService {
         '/chatbot/chat/emotion-status',
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
-       print('Respuesta del backend: ${response.data}');
-
       if (response.statusCode == 200) {
         final json = response.data; 
         final estadoString = json['status'] as String?;
 
         if (estadoString == null) {
-          print('La propiedad "status" es nula, usando valor por defecto "verde"');
+          
           return EstadoSemaforo.verde;
         }
-        print('Estado del semáforo recibido: $estadoString');
+
         return EstadoSemaforoExtension.fromString(estadoString);
         
       } else if (response.statusCode == 401) {
@@ -52,7 +50,7 @@ class BienestarService {
     try {
       return await obtenerEstadoSemaforo(token);
     } catch (e) {
-      print(' Error al obtener estado: $e');
+
       return null;
     }
   }
@@ -74,7 +72,7 @@ Future<EmotionalWeekData> obtenerNivelesSemanales({
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
 
-    print(' Respuesta niveles semanales: ${response.data}');
+    
 
     if (response.statusCode == 200) {
       return EmotionalWeekData.fromJson(response.data);
@@ -108,7 +106,6 @@ Future<EmotionalWeekData?> obtenerNivelesSemanaalesSeguro({
       endDate: endDate,
     );
   } catch (e) {
-    print(' Error al obtener niveles semanales: $e');
     return null;
   }
 }

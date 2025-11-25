@@ -34,7 +34,6 @@ class SecureStorageService {
       }
       return null;
     } catch (e) {
-      print('Error obteniendo fecha inscripción: $e');
       return null;
     }
   }

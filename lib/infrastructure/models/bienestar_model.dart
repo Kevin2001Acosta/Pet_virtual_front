@@ -115,11 +115,7 @@ class EmotionalWeekData {
     
     json.forEach((fecha, valor) {
       if (valor is Map<String, dynamic>) {
-        try {
           data[fecha] = DayEmotionData.fromJson(valor);
-        } catch (e) {
-          print(' Error parseando día $fecha: $e');
-        }
       }
     });
 

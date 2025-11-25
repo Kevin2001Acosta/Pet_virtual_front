@@ -174,61 +174,7 @@ class _ForgotScreenState extends State<ForgotScreen> {
     );
   }
 
-  /*
-  Future<void> _sendResetLink() async {
-    if (_emailController.text.isEmpty) {
-      showErrorDialog(
-        context: context,
-        title: 'Campos requeridos',
-        message: 'Por favor ingresa tu correo electrónico',
-      );
-      return;
-    }
-    setState(() {
-      _isLoading = true;
-    });
-    try {
-      final result = await _authService.sendPasswordResetLink(
-        _emailController.text,
-      );
-      setState(() {
-        _isLoading = false;
-      });
-      if (result['success'] == true) {
-        showSuccessDialog(
-          context: context,
-          title: 'Correo enviado',
-          message:
-              result['message'] ??
-              'Se ha enviado un enlace de recuperación a tu correo electrónico.',
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        );
-      } else {
-        showErrorDialog(
-          context: context,
-          title: 'Error',
-          message:
-              result['error'] ??
-              'Ocurrió un error desconocido al enviar el correo',
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      if (!mounted) return;
-      showErrorDialog(
-        context: context,
-        title: 'Error de conexión',
-        message: 'No se pudo conectar con el servidor: $e',
-      );
-    }
-  }
-  */
-
-
+  
  Future<void> _sendResetLink() async {
   if (_emailController.text.isEmpty) {
     if (!mounted) return; 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
+import 'package:yes_no_app/presentation/widgets/alert.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   final String token;
@@ -192,70 +193,120 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   Future<void> _changePassword() async {
-    // Validaciones
-    if (_passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor completa todos los campos')),
-      );
-      return;
-    }
+  // Validaciones
+  if (_passwordController.text.isEmpty ||
+      _confirmPasswordController.text.isEmpty) {
+    if (!mounted) return;
+    showErrorDialog(
+      context: context,
+      title: 'Campos requeridos',
+      message: 'Por favor completa todos los campos',
+    );
+    return;
+  }
 
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las contraseñas no coinciden')),
-      );
-      return;
-    }
 
-    if (_passwordController.text.length < 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('La contraseña debe tener al menos 8 caracteres'),
-        ),
+  if (_passwordController.text != _confirmPasswordController.text) {
+    if (!mounted) return;
+    showErrorDialog(
+      context: context,
+      title: 'Contraseñas no coinciden',
+      message: 'Las contraseñas ingresadas no son iguales',
+    );
+    return;
+  }
+
+  final password = _passwordController.text;
+    if (password.length < 8) {
+      showErrorDialog(
+        context: context,
+        title: 'Contraseña muy corta',
+        message: 'La contraseña debe tener al menos 8 caracteres',
       );
       return;
-    }
+   }
+
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta mayúscula',
+      message: 'La contraseña debe contener al menos una letra mayúscula',
+    );
+    return;
+  }
+
+  if (!password.contains(RegExp(r'[a-z]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta minúscula', 
+      message: 'La contraseña debe contener al menos una letra minúscula',
+    );
+    return;
+  }
+
+  if (!password.contains(RegExp(r'[0-9]'))) {
+    showErrorDialog(
+      context: context,
+      title: 'Falta número',
+      message: 'La contraseña debe contener al menos un dígito',
+    );
+    return;
+  }
+  
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    debugPrint(widget.token);
+    final result = await _authService.resetPassword(
+      _passwordController.text,
+      widget.token,
+    );
+
+    if (!mounted) return;
 
     setState(() {
-      _isLoading = true;
+      _isLoading = false;
     });
 
-    try {
-      debugPrint(widget.token);
-      final result = await _authService.resetPassword(
-        _passwordController.text,
-        widget.token,
+    if (result['success'] == true) {
+      
+      showSuccessDialog(
+        context: context,
+        title: '¡Contraseña cambiada!',
+        message: 'Tu contraseña ha sido actualizada exitosamente',
+        onPressed: () {
+          // Redireccionar al login
+          Navigator.pushNamedAndRemoveUntil(
+            context, 
+            '/login', 
+            (route) => false
+          );
+        },
       );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (result['success'] == true) {
-        String name = result['data']['name'] ?? 'Usuario';
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Contraseña cambiada exitosamente $name')),
-        );
-        Navigator.popUntil(context, (route) => route.isFirst);
-      } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result['error'] ?? 'Error al cambiar la contraseña'),
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } else {
+      showErrorDialog(
+        context: context,
+        title: 'Error',
+        message: result['error'] ?? 'Error al cambiar la contraseña',
+      );
     }
+  } catch (e) {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = false;
+    });
+    
+    showErrorDialog(
+      context: context,
+      title: 'Error de conexión',
+      message: 'No se pudo conectar con el servidor: $e',
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {

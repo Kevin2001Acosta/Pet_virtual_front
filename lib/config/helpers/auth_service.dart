@@ -14,19 +14,16 @@ class AuthService {
   // Registro de un usuario
   Future<Map<String, dynamic>> register(UserRegister user) async {
     try {
-      print('Enviando datos de registro: ${user.toJson()}');
       final response = await _dio.post(
         '/users/register',
         data: user.toJson(),
       );
-      print('Respuesta de registro: ${response.data}');
       return {
         'success': true,
         'data': response.data,
         'message': response.data['message'],
       };
     } on DioException catch (e) {
-      print('Error en registro: ${e.response?.data ?? e.message}');
       return {
         'success': false,
         'error': _handleError(e),
@@ -37,13 +34,10 @@ class AuthService {
   // Iniciar sesión
   Future<Map<String, dynamic>> login(UserLogin user) async {
     try {
-      print('Enviando datos de login: ${user.toJson()}');
       final response = await _dio.post(
         '/users/login',
         data: user.toJson(),
       );
-
-      print('Respuesta de login: ${response.data}');
 
       if (response.data['token'] != null) {
         await SecureStorageService.saveToken(response.data['token']);
@@ -53,10 +47,6 @@ class AuthService {
           userId: response.data['user']['id'].toString(),
           fechaInscripcion: response.data['user']['create_at'],
         );
-        
-        print('Token guardado exitosamente');
-         print(' Fecha guardada: ${response.data['user']['create_at']}');
-
       }
 
       return {
@@ -65,7 +55,7 @@ class AuthService {
         'token': response.data['token'],
       };
     } on DioException catch (e) {
-      print('Error en login: ${e.response?.data ?? e.message}');
+  
       return {
         'success': false,
         'error': _handleError(e),
@@ -76,7 +66,6 @@ class AuthService {
   // Método para logout
   Future<void> logout() async {
     await SecureStorageService.clearAll();
-    print('Sesión cerrada - datos eliminados');
   }
 
   // Verificar autenticación
@@ -102,12 +91,12 @@ class AuthService {
         'message': response.data['message'] ?? 'Correo enviado exitosamente',
       };
     } on DioException catch (e) {
-      print('Mensaje: ${e.message}');
-      print('Response: ${e.response}');
       String errorMessage = 'Error desconocido';
-      if (e.response != null && e.response!.statusCode == 404) {
+      if (e.response != null) {
+        if (e.response?.statusCode == 404) {
         errorMessage = 'Usuario no encontrado con ese email';
-      } else if (e.response?.data != null && e.response?.data is Map) {
+      }
+    } else if (e.response?.data != null && e.response?.data is Map) {
         errorMessage = e.response?.data['detail'] ??
             e.response?.data['message'] ??
             e.response?.data['error'] ??
@@ -120,7 +109,6 @@ class AuthService {
         'error': errorMessage,
       };
     } catch (e) {
-      print('Error inesperado: $e');
       return {
         'success': false,
         'error': 'Error inesperado: $e',
@@ -172,4 +160,64 @@ class AuthService {
 
     return 'Error de conexión: ${e.message}';
   }
-} 
+
+
+// Eliminar cuenta permanentemente
+Future<Map<String, dynamic>> deleteAccount() async {
+  try {
+    final token = await SecureStorageService.getToken();
+    
+    if (token == null) {
+      return {
+        'success': false,
+        'error': 'No hay sesión activa'
+      };
+    }
+
+       final response = await _dio.delete( 
+      '/users/delete-account',
+      options: Options(
+        headers: {'Authorization': 'Bearer $token'},
+      ),
+    );
+
+    if (response.data['success'] == true) {
+      // Limpiar datos locales
+      await SecureStorageService.clearAll();
+      return {
+        'success': true,
+        'message': 'Cuenta eliminada exitosamente'
+      };
+    } else {
+      return {
+        'success': false,
+        'error': response.data['message'] ?? 'Error al eliminar la cuenta'
+      };
+    }
+  } on DioException catch (e) {    
+    String errorMessage = 'Error de conexión';
+    if (e.response != null) {
+      if (e.response!.statusCode == 401) {
+        errorMessage = 'Sesión expirada. Por favor inicia sesión nuevamente.';
+      } else if (e.response!.statusCode == 404) {
+        errorMessage = 'Usuario no encontrado';
+      } else if (e.response!.data != null && e.response!.data is Map) {
+        errorMessage = e.response!.data['message'] ?? 
+                      e.response!.data['detail'] ?? 
+                      e.response!.data['error'] ?? 
+                      'Error al eliminar la cuenta';
+      }
+    }
+    
+    return {
+      'success': false,
+      'error': errorMessage
+    };
+  } catch (e) {
+    return {
+      'success': false,
+      'error': 'Error inesperado: $e'
+    };
+  }
+ }
+}

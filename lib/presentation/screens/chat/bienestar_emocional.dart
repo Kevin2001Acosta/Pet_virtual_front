@@ -51,19 +51,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     return fecha.subtract(Duration(days: fecha.weekday - 1));
   }
 
-  // Verificar si puede ir a la semana anterior
-  bool _puedeIrAnterior() {
-    if (_fechaInscripcion == null) return false;
-    final inicioSemanaInscripcion = _obtenerInicioSemana(_fechaInscripcion!);
-    return _fechaInicioSemanaActual.isAfter(inicioSemanaInscripcion);
-  }
-
-  // Verificar si puede ir a la semana siguiente
-  bool _puedeIrSiguiente() {
-    final inicioSemanaActual = _obtenerInicioSemana(DateTime.now());
-    return _fechaInicioSemanaActual.isBefore(inicioSemanaActual);
-  }
-
+ 
   // Navegar a semana anterior
   void _semanaAnterior() {
     if (!_puedeIrAnterior()) return;
@@ -76,6 +64,20 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     if (!_puedeIrSiguiente()) return;
     final nuevaFecha = _fechaInicioSemanaActual.add(const Duration(days: 7));
     _cargarDatosSemanalesPorFecha(nuevaFecha); 
+  }
+
+  bool _puedeIrAnterior() {
+    if (_fechaInscripcion == null) return false;
+    final inicioSemanaInscripcion = _obtenerInicioSemana(_fechaInscripcion!);
+    final inicioSemanaAnterior = _fechaInicioSemanaActual.subtract(const Duration(days: 7));
+    return !inicioSemanaAnterior.isBefore(inicioSemanaInscripcion);
+  }
+
+  bool _puedeIrSiguiente() {
+    
+    final inicioSemanaActual = _obtenerInicioSemana(DateTime.now());
+    final inicioSemanaSiguiente = _fechaInicioSemanaActual.add(const Duration(days: 7));
+    return inicioSemanaSiguiente.isBefore(inicioSemanaActual);
   }
 
   // Navegar a la semana actual
@@ -199,10 +201,10 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         
         setState(() {
           //Para pruebas
-           _estadoActual = EstadoSemaforo.rojo;
+          // _estadoActual = EstadoSemaforo.rojo;
           
           //Producción
-         // _estadoActual = estado ?? EstadoSemaforo.verde;
+          _estadoActual = estado ?? EstadoSemaforo.verde;
           
           _cargandoSemaforo = false;
           _actualizarEstadoCarga();
@@ -330,87 +332,92 @@ Widget build(BuildContext context) {
     );
   }
 
-  Widget _buildAppBarContent(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    final avatarSize = isLandscape ? 60.0 : (isTablet ? 100.0 : 90.0);
-    final titleFontSize = isTablet ? 26.0 : (isLandscape ? 18.0 : 22.0);
-    final subtitleFontSize = isTablet ? 22.0 : (isLandscape ? 16.0 : 18.0);
-    final spacing = isTablet ? 20.0 : (isLandscape ? 12.0 : 16.0);
-    final borderWidth = isTablet ? 4.0 : 3.0;
-    final iconSize = isTablet ? 80.0 : (isLandscape ? 40.0 : 60.0);
+Widget _buildAppBarContent(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isTablet = screenWidth > 600;
+  final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: avatarSize,
-          height: avatarSize,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: borderWidth),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: isTablet ? 12 : 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(isTablet ? 8 : 6),
-            child: ClipOval(
-              child: Image.asset(
-                'assets/images/mascota.png',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  child: Icon(
-                    Icons.emoji_emotions,
-                    color: Colors.white,
-                    size: iconSize,
-                  ),
+  final avatarSize = isLandscape ? 65.0 : (isTablet ? 75.0 : 65.0);
+  final titleFontSize = isTablet ? 25.0 : (isLandscape ? 21.0 : 23.0);
+  final subtitleFontSize = isTablet ? 20.0 : (isLandscape ? 16.0 : 18.0);
+  final spacing = isTablet ? 12.0 : (isLandscape ? 8.0 : 10.0);
+  final borderWidth = isTablet ? 3.0 : 2.0;
+  final iconSize = isTablet ? 50.0 : (isLandscape ? 30.0 : 40.0);
+
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: avatarSize,  
+        height: avatarSize, 
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.2),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: borderWidth),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: isTablet ? 8 : 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 6 : 4), 
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/mascota.png',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.white.withValues(alpha: 0.1),
+                child: Icon(
+                  Icons.emoji_emotions,
+                  color: Colors.white,
+                  size: iconSize, 
                 ),
               ),
             ),
           ),
         ),
-        SizedBox(width: spacing),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Tu bienestar',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: titleFontSize,
-                color: Colors.white,
-                height: 1.1,
-              ),
+      ),
+      SizedBox(width: spacing), 
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Tu bienestar',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: titleFontSize, 
+              color: Colors.white,
+              height: 1.1,
             ),
-            SizedBox(height: isLandscape ? 1 : 2),
-            Text(
-              'importa 💖',
-              style: TextStyle(
-                fontWeight: FontWeight.w400,
-                fontSize: subtitleFontSize,
-                color: Colors.white.withValues(alpha: 0.95),
-              ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+          SizedBox(height: isLandscape ? 1 : 2),
+          Text(
+            'importa 💖',
+            style: TextStyle(
+              fontWeight: FontWeight.w400,
+              fontSize: subtitleFontSize,
+              color: Colors.white.withValues(alpha: 0.95),
             ),
-          ],
-        ),
-      ],
-    );
-  }
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ],
+      ),
+    ],
+  );
+}
 
-  // Cuerpo principal
+// Cuerpo principal
 Widget _buildBody(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
   final isTablet = screenWidth > 600;
@@ -555,3 +562,4 @@ Widget _buildBody(BuildContext context) {
     );
   }
 }
+

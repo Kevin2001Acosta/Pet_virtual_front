@@ -19,7 +19,6 @@ class GetIAAnswer {
       InterceptorsWrapper(
         onError: (DioException error, ErrorInterceptorHandler handler) async {
           if (error.response?.statusCode == 401) {
-            print('Token expirado. Borrando token...');
             await SecureStorageService.deleteToken();
           }
           handler.next(error);
@@ -38,9 +37,6 @@ class GetIAAnswer {
     final ResponseIAModel responseIAModel = ResponseIAModel.fromJsonMap(
       response.data,
     );
-
-    print(" Emoción extraída: ${responseIAModel.emotion}");
-
     return responseIAModel.toMessageEntity();
   }
 
@@ -53,7 +49,6 @@ class GetIAAnswer {
     Map<String, dynamic> data = response.data;
     List<dynamic> conversations = data['history'];
     String petName = data['pet_name'] ?? 'Mascota Virtual';
-    print(" Nombre de la mascota: $petName");
 
     List<Message> messages = [];
 

@@ -6,7 +6,6 @@ import 'package:yes_no_app/presentation/widgets/chat/my_message_bubble.dart';
 import 'package:yes_no_app/presentation/widgets/shared/message_field_box.dart';
 import 'package:yes_no_app/presentation/screens/chat/mascota_animation.dart';
 import '../../../domain/entities/message.dart';
-import 'package:yes_no_app/presentation/widgets/alert.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -25,6 +24,75 @@ class ChatScreen extends StatelessWidget {
       },
     );
   }
+
+  void _showMenuOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        margin: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Opción Cerrar Sesión
+            ListTile(
+              leading: Icon(
+                Icons.exit_to_app_rounded,
+                color: Color(0xFFF35449),
+              ),
+              title: Text(
+                'Cerrar sesión',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context); 
+                _showLogoutDialog(context);
+              },
+            ),
+            
+            Divider(height: 1, color: Colors.grey[300]),
+            
+            // Opción Eliminar Cuenta
+            ListTile(
+              leading: Icon(
+                Icons.delete_forever_rounded,
+                color: Colors.red,
+              ),
+              title: Text(
+                'Eliminar cuenta',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Colors.red,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context); 
+                _showDeleteAccountDialog(context);
+              },
+            ),
+            
+            SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   /// AppBar 
   PreferredSizeWidget _buildAppBar(BuildContext context, ChatProvider chatProvider) {
@@ -58,13 +126,13 @@ class ChatScreen extends StatelessWidget {
             ),
           ),
           child: Icon(
-            Icons.exit_to_app_rounded,
+            Icons.menu_rounded,
             color: Colors.white,
             size: iconSize,
           ),
         ),
-        tooltip: 'Cerrar sesión',
-        onPressed: () => _showLogoutDialog(context),
+        tooltip: 'Menú de opciones',
+        onPressed: () => _showMenuOptions(context),
       ),
       title: _buildAppBarContent(
         context,
@@ -174,46 +242,129 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  /*
-  /// Diálogo para cerrar sesión 
-  void _showLogoutDialog(BuildContext context) {
-    showInfoDialog(
-      context: context,
-      title: 'Cerrar sesión',
-      message: '¿Estás seguro de que quieres cerrar sesión?',
-      buttonText: 'Cancelar',
-      secondaryButtonText: 'Cerrar sesión',
-      onPressed: () {},
-      onSecondaryPressed: () async {
-        final authService = AuthService();
-        await authService.logout();
-        Navigator.pushReplacementNamed(context, '/login');
-      },
-    );
-  }
+void _showDeleteAccountDialog(BuildContext context) {
+  final rootNavigator = Navigator.of(context, rootNavigator: true);
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.delete_forever, color: Colors.red),
+          SizedBox(width: 8),
+          Text('Eliminar cuenta'),
+        ],
+      ),
+      content: Text('¿Estás seguro de que quieres eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y se perderán todos tus datos.'),
+      actions: [
+        TextButton(
+          onPressed: () => rootNavigator.pop(),
+          child: Text('Cancelar'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          onPressed: () async {
+            rootNavigator.pop(); 
+            try {
+              // Mostrar loading
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: CircularProgressIndicator(color: Color(0xFFF35449)),
+                ),
+              );
+              final authService = AuthService();
+              final result = await authService.deleteAccount();
+              rootNavigator.pop();
+              
+              if (result['success'] == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result['message'] ?? 'Cuenta eliminada exitosamente'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                rootNavigator.pushNamedAndRemoveUntil('/login', (route) => false);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result['error'] ?? 'Error al eliminar la cuenta'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            } catch (e) {
+              if (rootNavigator.canPop()) rootNavigator.pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+              );
+            }
+          },
+          child: Text('Eliminar cuenta'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    ),
+  );
 }
-*/
+
+
   void _showLogoutDialog(BuildContext context) {
-    showInfoDialog(
-      context: context,
-      title: 'Cerrar sesión',
-      message: '¿Estás seguro de que quieres cerrar sesión?',
-      buttonText: 'Cancelar',
-      secondaryButtonText: 'Cerrar sesión',
-      onPressed: () {},
-      onSecondaryPressed: () async {
-        final authService = AuthService();
-
-        // 👇 Guardas el navigator ANTES del await
-        final navigator = Navigator.of(context);
-
-        await authService.logout();
-
-        // 👇 Usas navigator, no context
-        navigator.pushReplacementNamed('/login');
-      },
-    );
-  }
+  final rootNavigator = Navigator.of(context, rootNavigator: true);
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Row(
+        children: [
+          Icon(Icons.exit_to_app, color: Color(0xFFF35449)),
+          SizedBox(width: 8),
+          Text('Cerrar sesión'),
+        ],
+      ),
+      content: Text('¿Estás seguro de que quieres cerrar sesión?'),
+      actions: [
+        TextButton(
+          onPressed: () {
+            rootNavigator.pop();
+          },
+          child: Text('Cancelar'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFFF35449),
+          ),
+          onPressed: () {
+            rootNavigator.pop();
+          
+            Future.delayed(Duration.zero, () async {
+              try {
+                final authService = AuthService();
+                await authService.logout();
+                
+                // Navegar al login
+                rootNavigator.pushNamedAndRemoveUntil(
+                  '/login', 
+                  (route) => false
+                );
+                
+              } catch (e) {
+                
+                rootNavigator.pushNamedAndRemoveUntil(
+                  '/login', 
+                  (route) => false
+                );
+              }
+            });
+          },
+          child: Text('Cerrar sesión'),
+        ),
+      ],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+    ),
+  );
+}
 }
 
 class _ChatView extends StatefulWidget {
@@ -438,7 +589,7 @@ class _ChatViewState extends State<_ChatView> {
                         child: MessageFieldBox(
                           onValue: (value) =>
                               chatProvider.sendMessage(value, widget.token),
-                              enabled: !chatProvider.isLoading,
+                          enabled: !chatProvider.isLoading,
                         ),
                       ),
                     ],
