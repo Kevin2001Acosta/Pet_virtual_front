@@ -80,51 +80,44 @@ class GetIAAnswer {
 
 
 // Limpiar el chat
-  Future<Map<String, dynamic>> clearChat() async {
-    try {
-      final token = await SecureStorageService.getToken();
+ Future<Map<String, dynamic>> clearChat(String token) async {
+  try {
+    final response = await _dio.delete(
+      '/chatbot/chat/clear', 
+      options: Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        validateStatus: (status) => status! < 500,
+      ),
+    );
 
-      if (token == null || token.isEmpty) {
-        return {
-          'success': false,
-          'error': 'No hay sesión activa'
-        };
-      }
-
-      final response = await _dio.delete(
-        '/chat/clear',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-          validateStatus: (status) => status! < 500,
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'message': response.data['message'] ?? 'Chat limpiado correctamente'
-        };
-      } else {
-        return {
-          'success': false,
-          'error': response.data?['message'] ?? 'Error al limpiar el chat'
-        };
-      }
-    } on DioException catch (e) {
+    if (response.statusCode == 200) {
       return {
-        'success': false,
-        'error': _handleError(e),
+        'success': true,
+        'message': response.data['message'] ?? 'Chat limpiado correctamente',
+        'cleared_messages': response.data['cleared_messages'] ?? 0 
       };
-    } catch (e) {
+    } else {
       return {
         'success': false,
-        'error': 'Error inesperado: $e',
+        'error': response.data?['message'] ?? 'Error al limpiar el chat'
       };
     }
+  } on DioException catch (e) {
+    return {
+      'success': false,
+      'error': _handleError(e),
+    };
+  } catch (e) {
+    return {
+      'success': false,
+      'error': 'Error inesperado: $e',
+    };
   }
+}
+
 
   // Manejo de errores
   String _handleError(DioException e) {

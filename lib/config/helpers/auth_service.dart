@@ -246,4 +246,21 @@ class AuthService {
     }
   }
 
-  
+  // Manejo de errores
+  String _handleError(DioException e) {
+    if (e.response != null) {
+      final errorData = e.response?.data;
+
+      if (errorData is Map && errorData.containsKey('detail')) {
+        return errorData['detail'];
+      } else if (errorData is Map && errorData.containsKey('message')) {
+        return errorData['message'];
+      } else if (errorData is String) {
+        return errorData;
+      }
+      return 'Error en la petición: ${e.response?.statusCode}';
+    }
+
+    return 'Error de conexión: ${e.message}';
+  }
+}

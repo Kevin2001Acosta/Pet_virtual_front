@@ -440,7 +440,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final chatService = GetIAAnswer();
-      final result = await chatService.clearChat(); 
+      final result = await chatService.clearChat(widget.token);
 
       if (mounted) navigator.pop(); 
 
@@ -449,8 +449,8 @@ class _ChatScreenState extends State<ChatScreen> {
           final chatProvider = Provider.of<ChatProvider>(context, listen: false);
           chatProvider.clearMessages(); 
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Chat limpiado correctamente'),
+            SnackBar(
+              content: Text(result['message'] ?? 'Chat limpiado correctamente'),
               backgroundColor: Colors.green,
             ),
           );

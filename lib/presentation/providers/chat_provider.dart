@@ -74,7 +74,7 @@ class ChatProvider extends ChangeNotifier {
   });
 }
 
-//
+//Limpiar chat
 void clearMessages() {
   messageList.clear();
   notifyListeners();
