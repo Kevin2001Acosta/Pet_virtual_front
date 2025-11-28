@@ -53,14 +53,17 @@ class GetIAAnswer {
     List<Message> messages = [];
 
     for (var conv in conversations) {
-      // Mensaje del usuario
-      messages.add(
-        Message(
-          text: conv['question'] ?? '',
-          emotion: 'respirar',
-          fromWho: FromWho.me,
-        ),
-      );
+      // Mensaje del usuario (solo si question no está vacío)
+      final String question = conv['question'] ?? '';
+      if (question.isNotEmpty) {
+        messages.add(
+          Message(
+            text: question,
+            emotion: 'respirar',
+            fromWho: FromWho.me,
+          ),
+        );
+      }
       // Respuesta del bot
       messages.add(
         Message(

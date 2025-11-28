@@ -10,12 +10,14 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStateMixin {
+class _RegisterScreenState extends State<RegisterScreen>
+    with TickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _petNameController = TextEditingController(); 
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _petNameController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
   bool _obscureConfirmText = true;
@@ -29,35 +31,28 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   @override
   void initState() {
     super.initState();
-    
+
     // Inicializar controladores de animación
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     // Configurar animaciones
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
-    
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
-    
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
+
     // Iniciar animaciones
     _fadeController.forward();
     _slideController.forward();
@@ -101,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     if (!password.contains(RegExp(r'[a-z]'))) {
       showErrorDialog(
         context: context,
-        title: 'Falta minúscula', 
+        title: 'Falta minúscula',
         message: 'La contraseña debe contener al menos una letra minúscula',
       );
       return;
@@ -125,7 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         password: _passwordController.text,
         petName: _petNameController.text,
       );
-      
+
       final authService = AuthService();
       final response = await authService.register(user);
 
@@ -136,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             title: 'Éxito',
             message: response['message'] ?? 'Cuenta registrada con éxito',
           );
-          
+
           Future.delayed(const Duration(milliseconds: 1500), () {
             if (mounted) {
               Navigator.pushReplacementNamed(context, '/login');
@@ -153,7 +148,6 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         }
       }
     } catch (e) {
-     
       if (mounted) {
         showErrorDialog(
           context: context,
@@ -172,8 +166,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   double _getResponsiveFontSize(BuildContext context, double baseSize) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isTablet) {
       return baseSize * 1.2; // 20% más grande en tablets
     } else if (isLandscape) {
@@ -185,10 +180,11 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
   double _getResponsiveSpacing(BuildContext context, double baseSpacing) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isLandscape) {
-      return baseSpacing * 0.7; 
+      return baseSpacing * 0.7;
     } else {
       return baseSpacing * (screenHeight / 812);
     }
@@ -197,14 +193,15 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   double _getResponsiveImageSize(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isTablet) {
       return screenWidth * 0.3;
     } else if (isLandscape) {
-      return screenWidth * 0.30; 
+      return screenWidth * 0.30;
     } else {
-      return screenWidth * 0.5; 
+      return screenWidth * 0.5;
     }
   }
 
@@ -215,10 +212,10 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     required IconData icon,
     required BuildContext context,
     bool isPassword = false,
-    bool isConfirmPassword = false, 
+    bool isConfirmPassword = false,
   }) {
     final isTablet = MediaQuery.of(context).size.width > 600;
-    
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(15),
@@ -233,7 +230,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword 
+        obscureText: isPassword
             ? (isConfirmPassword ? _obscureConfirmText : _obscureText)
             : false,
         style: TextStyle(
@@ -252,28 +249,30 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             margin: const EdgeInsets.all(8),
             child: Icon(
               icon,
-              color: Colors.black, 
+              color: Colors.black,
               size: _getResponsiveFontSize(context, 20),
             ),
           ),
-          suffixIcon: isPassword ? IconButton(
-            icon: Icon(
-              (isConfirmPassword ? _obscureConfirmText : _obscureText) 
-                  ? Icons.visibility_off 
-                  : Icons.visibility,
-              color: Colors.black, 
-              size: _getResponsiveFontSize(context, 20),
-            ),
-            onPressed: () {
-              setState(() {
-                if (isConfirmPassword) {
-                  _obscureConfirmText = !_obscureConfirmText;
-                } else {
-                  _obscureText = !_obscureText;
-                }
-              });
-            },
-          ) : null,
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    (isConfirmPassword ? _obscureConfirmText : _obscureText)
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.black,
+                    size: _getResponsiveFontSize(context, 20),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      if (isConfirmPassword) {
+                        _obscureConfirmText = !_obscureConfirmText;
+                      } else {
+                        _obscureText = !_obscureText;
+                      }
+                    });
+                  },
+                )
+              : null,
           contentPadding: EdgeInsets.symmetric(
             horizontal: 20,
             vertical: isTablet ? 20 : 16,
@@ -301,8 +300,8 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   }
 
   Widget _buildHeader(BuildContext context, bool isKeyboardVisible) {
-    return Container(
-      width: double.infinity, 
+    return SizedBox(
+      width: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -321,26 +320,25 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
             ),
             SizedBox(height: _getResponsiveSpacing(context, 10)),
           ],
-          
-          
-          Container(
+
+          SizedBox(
             width: double.infinity,
             child: Stack(
-              alignment: Alignment.center, 
+              alignment: Alignment.center,
               children: [
                 Text(
                   'CREAR CUENTA',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'ComicNeue', 
+                    fontFamily: 'ComicNeue',
                     fontWeight: FontWeight.w800,
                     fontSize: _getResponsiveFontSize(
-                      context, 
-                      isKeyboardVisible ? 36 : 38 
+                      context,
+                      isKeyboardVisible ? 36 : 38,
                     ),
                     foreground: Paint()
                       ..style = PaintingStyle.stroke
-                      ..strokeWidth= 4
+                      ..strokeWidth = 4
                       ..color = Colors.white,
                     letterSpacing: 1.2,
                     height: 1.1,
@@ -353,10 +351,10 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                     fontFamily: 'ComicNeue',
                     fontWeight: FontWeight.w800,
                     fontSize: _getResponsiveFontSize(
-                      context, 
-                      isKeyboardVisible ? 36 : 38
+                      context,
+                      isKeyboardVisible ? 36 : 38,
                     ),
-                    color: const Color(0xFFE52E2E), 
+                    color: const Color(0xFFE52E2E),
                     letterSpacing: 1.2,
                     height: 1.1,
                   ),
@@ -373,17 +371,18 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet = screenWidth > 600;
 
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardVisible = bottomInset > 0; 
-    
+    final isKeyboardVisible = bottomInset > 0;
+
     final maxWidth = isTablet ? 500.0 : screenWidth;
-    
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      
+
       body: Stack(
         children: [
           Container(
@@ -415,27 +414,35 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                         position: _slideAnimation,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center, 
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                           
-                            Container(
+                            SizedBox(
                               width: double.infinity,
                               child: AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 300),
-                                transitionBuilder: (Widget child, Animation<double> animation) {
-                                  return FadeTransition(
-                                    opacity: animation,
-                                    child: SizeTransition(
-                                      sizeFactor: animation,
-                                      child: child,
-                                    ),
-                                  );
-                                },
+                                transitionBuilder:
+                                    (
+                                      Widget child,
+                                      Animation<double> animation,
+                                    ) {
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: SizeTransition(
+                                          sizeFactor: animation,
+                                          child: child,
+                                        ),
+                                      );
+                                    },
                                 child: _buildHeader(context, isKeyboardVisible),
                               ),
                             ),
-                            
-                            SizedBox(height: _getResponsiveSpacing(context, isKeyboardVisible ? 15 : 20)),
+
+                            SizedBox(
+                              height: _getResponsiveSpacing(
+                                context,
+                                isKeyboardVisible ? 15 : 20,
+                              ),
+                            ),
 
                             // Campos de formulario
                             Column(
@@ -446,14 +453,18 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   icon: Icons.person_outline,
                                   context: context,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                SizedBox(
+                                  height: _getResponsiveSpacing(context, 14),
+                                ),
                                 _buildStyledTextField(
                                   controller: _emailController,
                                   label: 'Correo electrónico',
                                   icon: Icons.email,
                                   context: context,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                SizedBox(
+                                  height: _getResponsiveSpacing(context, 14),
+                                ),
                                 _buildStyledTextField(
                                   controller: _passwordController,
                                   label: 'Contraseña',
@@ -461,7 +472,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   context: context,
                                   isPassword: true,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                SizedBox(
+                                  height: _getResponsiveSpacing(context, 14),
+                                ),
                                 _buildStyledTextField(
                                   controller: _confirmPasswordController,
                                   label: 'Confirmar contraseña',
@@ -470,7 +483,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   isPassword: true,
                                   isConfirmPassword: true,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                SizedBox(
+                                  height: _getResponsiveSpacing(context, 14),
+                                ),
                                 _buildStyledTextField(
                                   controller: _petNameController,
                                   label: 'Nombre mascota',
@@ -479,8 +494,10 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 ),
                               ],
                             ),
-                            SizedBox(height: _getResponsiveSpacing(context, 40)),
-                            
+                            SizedBox(
+                              height: _getResponsiveSpacing(context, 40),
+                            ),
+
                             // Botón de registro
                             Container(
                               width: double.infinity,
@@ -498,7 +515,12 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color.fromARGB(255, 243, 84, 73).withValues(alpha: 0.4), 
+                                    color: const Color.fromARGB(
+                                      255,
+                                      243,
+                                      84,
+                                      73,
+                                    ).withValues(alpha: 0.4),
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),
@@ -512,18 +534,31 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   child: Center(
                                     child: _isLoading
                                         ? SizedBox(
-                                            height: _getResponsiveFontSize(context, 20),
-                                            width: _getResponsiveFontSize(context, 20),
-                                            child: const CircularProgressIndicator(
-                                              strokeWidth: 2.5,
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                            height: _getResponsiveFontSize(
+                                              context,
+                                              20,
                                             ),
+                                            width: _getResponsiveFontSize(
+                                              context,
+                                              20,
+                                            ),
+                                            child:
+                                                const CircularProgressIndicator(
+                                                  strokeWidth: 2.5,
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(Colors.white),
+                                                ),
                                           )
                                         : Text(
                                             'REGISTRARSE',
                                             style: TextStyle(
                                               fontFamily: 'Poppins',
-                                              fontSize: _getResponsiveFontSize(context, 20),
+                                              fontSize: _getResponsiveFontSize(
+                                                context,
+                                                20,
+                                              ),
                                               fontWeight: FontWeight.w700,
                                               color: Colors.white,
                                               letterSpacing: 1.2,
@@ -537,22 +572,31 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
 
                             // Botón de login
                             TextButton(
-                              onPressed: () => Navigator.pushNamed(context, '/login'),
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/login'),
                               child: RichText(
                                 text: TextSpan(
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
-                                    fontSize: _getResponsiveFontSize(context, 14),
+                                    fontSize: _getResponsiveFontSize(
+                                      context,
+                                      14,
+                                    ),
                                     color: Colors.black,
                                   ),
                                   children: [
-                                    const TextSpan(text: ' ¿Ya tienes cuenta? '),
+                                    const TextSpan(
+                                      text: ' ¿Ya tienes cuenta? ',
+                                    ),
                                     TextSpan(
                                       text: 'Inicia sesión',
                                       style: TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: _getResponsiveFontSize(context, 16),
+                                        fontSize: _getResponsiveFontSize(
+                                          context,
+                                          16,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -572,7 +616,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _nameController.dispose();

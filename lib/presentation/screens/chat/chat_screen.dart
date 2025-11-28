@@ -10,7 +10,7 @@ import 'package:yes_no_app/config/helpers/auth_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String token;
-  
+
   const ChatScreen({super.key, required this.token});
 
   @override
@@ -18,15 +18,13 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  bool _loading = false; 
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<ChatProvider>(  
+    return Consumer<ChatProvider>(
       builder: (context, chatProvider, _) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: _buildAppBar(context, chatProvider), 
+          appBar: _buildAppBar(context, chatProvider),
           body: _ChatView(token: widget.token),
         );
       },
@@ -44,7 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(51), 
+              color: Colors.black.withAlpha(51),
               blurRadius: 20,
               offset: const Offset(0, 5),
             ),
@@ -60,20 +58,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Color(0xFFF35449),
               ),
               title: const Text(
-                'Cerrar sesión', 
-                style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                ),
+                'Cerrar sesión',
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
               ),
               onTap: () {
-                Navigator.pop(context); 
+                Navigator.pop(context);
                 _showLogoutDialog(context);
               },
             ),
-            
+
             Divider(height: 1, color: Colors.grey[300]),
-            
+
             // Opción Eliminar Cuenta
             ListTile(
               leading: const Icon(
@@ -89,11 +84,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               onTap: () {
-                Navigator.pop(context); 
+                Navigator.pop(context);
                 _showDeleteAccountDialog(context);
               },
             ),
-            
+
             const SizedBox(height: 8),
           ],
         ),
@@ -101,11 +96,15 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// AppBar 
-  PreferredSizeWidget _buildAppBar(BuildContext context, ChatProvider chatProvider) {
+  /// AppBar
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    ChatProvider chatProvider,
+  ) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     final toolbarHeight = isLandscape ? 90.0 : (isTablet ? 110.0 : 100.0);
     final titleFontSize = isTablet ? 24.0 : (isLandscape ? 16.0 : 20.0);
@@ -125,16 +124,9 @@ class _ChatScreenState extends State<ChatScreen> {
           decoration: BoxDecoration(
             color: Colors.white.withAlpha(51),
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Colors.white.withAlpha(77),
-              width: 2,
-            ),
+            border: Border.all(color: Colors.white.withAlpha(77), width: 2),
           ),
-          child: Icon(
-            Icons.menu_rounded,
-            color: Colors.white,
-            size: iconSize,
-          ),
+          child: Icon(Icons.menu_rounded, color: Colors.white, size: iconSize),
         ),
         tooltip: 'Menú de opciones',
         onPressed: () => _showMenuOptions(context),
@@ -156,10 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
               decoration: BoxDecoration(
                 color: Colors.white.withAlpha(51),
                 shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withAlpha(77),
-                  width: 2,
-                ),
+                border: Border.all(color: Colors.white.withAlpha(77), width: 2),
               ),
               child: Icon(
                 Icons.favorite_rounded,
@@ -230,7 +219,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(width: 6),
             Text(
-              'En línea', 
+              'En línea',
               style: TextStyle(
                 fontSize: subtitleFontSize,
                 fontWeight: FontWeight.w400,
@@ -242,7 +231,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ],
     );
   }
-  
+
   void _showDeleteAccountDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -254,7 +243,9 @@ class _ChatScreenState extends State<ChatScreen> {
             Text('Eliminar cuenta'),
           ],
         ),
-        content: const Text('¿Estás seguro de que quieres eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y se perderán todos tus datos.'),
+        content: const Text(
+          '¿Estás seguro de que quieres eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y se perderán todos tus datos.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -271,21 +262,22 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Future<void> _executeDeleteAccount(BuildContext context) async {
-    final rootNavigator = Navigator.of(context, rootNavigator: true);
-   
-    rootNavigator.pop(); 
+  Future<void> _executeDeleteAccount(BuildContext dialogContext) async {
+    final rootNavigator = Navigator.of(dialogContext, rootNavigator: true);
+    final scaffoldMessenger = ScaffoldMessenger.of(dialogContext);
 
-    setState(() => _loading = true);
+    rootNavigator.pop();
+
     showDialog(
-      context: rootNavigator.context,
+      context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
+      builder: (ctx) => const Center(
         child: CircularProgressIndicator(color: Color(0xFFF35449)),
       ),
     );
 
-    try {      final authService = AuthService();
+    try {
+      final authService = AuthService();
       final result = await authService.deleteAccount().timeout(
         const Duration(seconds: 15),
         onTimeout: () {
@@ -294,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       if (result['success'] != true && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(result['error'] ?? 'Error al eliminar la cuenta'),
             backgroundColor: Colors.red,
@@ -304,9 +296,9 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
-            content: Text('Error: $e'), 
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 3),
           ),
@@ -314,27 +306,24 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => _loading = false);
         rootNavigator.pop();
-        if (mounted) {
-          rootNavigator.pushNamedAndRemoveUntil('/login', (route) => false); 
-        }
+        rootNavigator.pushNamedAndRemoveUntil('/login', (route) => false);
       }
     }
   }
 
   void _navigateToLogin(BuildContext context) {
-    Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(
-      '/login', 
-      (route) => false
-    );
+    Navigator.of(
+      context,
+      rootNavigator: true,
+    ).pushNamedAndRemoveUntil('/login', (route) => false);
   }
- 
-  void _showLogoutDialog(BuildContext context) {
-    final rootNavigator = Navigator.of(context, rootNavigator: true);
+
+  void _showLogoutDialog(BuildContext parentContext) {
+    final rootNavigator = Navigator.of(parentContext, rootNavigator: true);
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
+      context: parentContext,
+      builder: (dialogContext) => AlertDialog(
         title: const Row(
           children: [
             Icon(Icons.exit_to_app, color: Color(0xFFF35449)),
@@ -354,24 +343,22 @@ class _ChatScreenState extends State<ChatScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF35449),
             ),
-            onPressed: () {
+            onPressed: () async {
               rootNavigator.pop();
-              Future.delayed(Duration.zero, () async {
-                try {
-                  final authService = AuthService();
-                  await authService.logout();
-                  _navigateToLogin(context); 
-                } catch (e) {
-                  _navigateToLogin(context); 
-                }
-              });
+              try {
+                final authService = AuthService();
+                await authService.logout();
+              } catch (e) {
+                // Ignorar error de logout
+              }
+              if (mounted) {
+                _navigateToLogin(context);
+              }
             },
             child: const Text('Cerrar sesión'),
           ),
         ],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
     );
   }
@@ -407,10 +394,9 @@ class _ChatViewState extends State<_ChatView> {
   void _onKeyboardChange() {
     if (_focusNode.hasFocus) {
       Future.delayed(const Duration(milliseconds: 300), () {
-        if (mounted) {
-          final chatProvider = context.read<ChatProvider>();
-          chatProvider.scrollToBottom(animated: true);
-        }
+        if (!mounted) return;
+        final chatProvider = context.read<ChatProvider>();
+        chatProvider.scrollToBottom(animated: true);
       });
     }
   }
@@ -423,32 +409,27 @@ class _ChatViewState extends State<_ChatView> {
       _showSessionExpiredDialog();
     } else if (mounted) {
       setState(() => _loading = false);
-      
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         chatProvider.scrollToBottom(animated: false);
       });
     }
   }
-  
+
   void _showSessionExpiredDialog() {
     _sessionExpiredDialogShown = true;
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.access_time, color: Colors.orange, size: 28),
             SizedBox(width: 12),
             Text(
               'Sesión expirada',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
           ],
         ),
@@ -471,8 +452,8 @@ class _ChatViewState extends State<_ChatView> {
                 ),
               ),
               onPressed: () {
-                Navigator.of(context).pop(); 
-                Navigator.pushReplacementNamed(context, '/login'); 
+                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/login');
               },
               child: const Text(
                 'Iniciar sesión',
@@ -493,7 +474,8 @@ class _ChatViewState extends State<_ChatView> {
   double _getMascotaSize(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet = screenWidth > 600;
 
     if (isLandscape) {
@@ -508,7 +490,8 @@ class _ChatViewState extends State<_ChatView> {
   EdgeInsets _getResponsivePadding(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isTablet) {
       return const EdgeInsets.all(20);
@@ -523,7 +506,7 @@ class _ChatViewState extends State<_ChatView> {
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    
+
     if (keyboardHeight > 0 && chatProvider.messageList.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -531,13 +514,13 @@ class _ChatViewState extends State<_ChatView> {
         }
       });
     }
-    
+
     if (chatProvider.sessionExpired) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacementNamed(context, '/login');
       });
     }
-    
+
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final maxWidth = isTablet ? 800.0 : screenWidth;
@@ -546,7 +529,7 @@ class _ChatViewState extends State<_ChatView> {
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       body: SafeArea(
-        bottom: false, 
+        bottom: false,
         child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: maxWidth),
@@ -589,55 +572,57 @@ class _ChatViewState extends State<_ChatView> {
                 ),
 
                 Expanded(
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: _loading
-                              ? Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: const AlwaysStoppedAnimation<Color>(
-                                      Color(0xFFF87070),
-                                    ),
-                                    strokeWidth: isTablet ? 3 : 2,
-                                  ),
-                                )
-                              : _buildMessageList(chatProvider, isTablet),
-                        ),
-
-                        // Campo de texto
-                        SingleChildScrollView(
-                          reverse: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isTablet ? 20 : 10,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withAlpha(13),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, -2),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: _loading
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                        Color(0xFFF87070),
+                                      ),
+                                  strokeWidth: isTablet ? 3 : 2,
                                 ),
-                              ],
-                            ),
-                            child: MessageFieldBox(
-                              onValue: (value) {
-                                chatProvider.sendMessage(value, widget.token);
-                                Future.delayed(const Duration(milliseconds: 100), () {
+                              )
+                            : _buildMessageList(chatProvider, isTablet),
+                      ),
+
+                      // Campo de texto
+                      SingleChildScrollView(
+                        reverse: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isTablet ? 20 : 10,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(13),
+                                blurRadius: 8,
+                                offset: const Offset(0, -2),
+                              ),
+                            ],
+                          ),
+                          child: MessageFieldBox(
+                            onValue: (value) {
+                              chatProvider.sendMessage(value, widget.token);
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () {
                                   chatProvider.scrollToBottom(animated: true);
-                                });
-                              },
-                              enabled: !chatProvider.isLoading,
-                              focusNode: _focusNode,
-                            ),
+                                },
+                              );
+                            },
+                            enabled: !chatProvider.isLoading,
+                            focusNode: _focusNode,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
