@@ -7,6 +7,7 @@ import 'package:yes_no_app/presentation/widgets/shared/message_field_box.dart';
 import 'package:yes_no_app/presentation/screens/chat/mascota_animation.dart';
 import '../../../domain/entities/message.dart';
 import 'package:yes_no_app/config/helpers/auth_service.dart';
+import 'package:yes_no_app/config/helpers/get_yes_no_answer.dart';
 
 class ChatScreen extends StatefulWidget {
   final String token;
@@ -94,6 +95,27 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
             
+            Divider(height: 1, color: Colors.grey[300]),
+
+            // Opción Limpiar Chat
+            ListTile(
+              leading: const Icon(
+                Icons.cleaning_services_rounded,
+                color: Colors.blue,
+              ),
+              title: const Text(
+                'Limpiar chat',
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                 _showClearChatDialog(context);
+              },
+            ),
+
             const SizedBox(height: 8),
           ],
         ),
@@ -271,6 +293,34 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _showClearChatDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.cleaning_services_rounded, color: Colors.blue),
+            SizedBox(width: 8),
+            Text('Limpiar chat'),
+          ],
+        ),
+        content: const Text('¿Estás seguro de que quieres limpiar todo el historial del chat? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            onPressed: () => _executeClearChat(context),
+            child: const Text('Limpiar chat'),
+          ),
+        ],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+  }
+
   Future<void> _executeDeleteAccount(BuildContext context) async {
     final rootNavigator = Navigator.of(context, rootNavigator: true);
    
@@ -374,6 +424,59 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  void _executeClearChat(BuildContext context) async {
+    final navigator = Navigator.of(context, rootNavigator: true);
+    navigator.pop();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(color: Colors.blue),
+      ),
+    );
+
+    try {
+      final chatService = GetIAAnswer();
+      final result = await chatService.clearChat(); 
+
+      if (mounted) navigator.pop(); 
+
+      if (result['success'] == true) {
+        if (mounted) {
+          final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+          chatProvider.clearMessages(); 
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Chat limpiado correctamente'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error'] ?? 'Error al limpiar el chat'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted && navigator.canPop()) navigator.pop();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 

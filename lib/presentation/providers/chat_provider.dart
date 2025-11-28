@@ -74,6 +74,12 @@ class ChatProvider extends ChangeNotifier {
   });
 }
 
+//
+void clearMessages() {
+  messageList.clear();
+  notifyListeners();
+}
+
 
 void ensureScrollOnKeyboard() {
   WidgetsBinding.instance.addPostFrameCallback((_) {

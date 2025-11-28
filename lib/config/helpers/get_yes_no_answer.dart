@@ -76,6 +76,74 @@ class GetIAAnswer {
       'petName': petName,
     };
   } 
+
+
+
+// Limpiar el chat
+  Future<Map<String, dynamic>> clearChat() async {
+    try {
+      final token = await SecureStorageService.getToken();
+
+      if (token == null || token.isEmpty) {
+        return {
+          'success': false,
+          'error': 'No hay sesión activa'
+        };
+      }
+
+      final response = await _dio.delete(
+        '/chat/clear',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          validateStatus: (status) => status! < 500,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': response.data['message'] ?? 'Chat limpiado correctamente'
+        };
+      } else {
+        return {
+          'success': false,
+          'error': response.data?['message'] ?? 'Error al limpiar el chat'
+        };
+      }
+    } on DioException catch (e) {
+      return {
+        'success': false,
+        'error': _handleError(e),
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': 'Error inesperado: $e',
+      };
+    }
+  }
+
+  // Manejo de errores
+  String _handleError(DioException e) {
+    if (e.response != null) {
+      final errorData = e.response?.data;
+
+      if (errorData is Map && errorData.containsKey('detail')) {
+        return errorData['detail'];
+      } else if (errorData is Map && errorData.containsKey('message')) {
+        return errorData['message'];
+      } else if (errorData is String) {
+        return errorData;
+      }
+      return 'Error en la petición: ${e.response?.statusCode}';
+    }
+
+    return 'Error de conexión: ${e.message}';
+  }
+
 }
 
 
