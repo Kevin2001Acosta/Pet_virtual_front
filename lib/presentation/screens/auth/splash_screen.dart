@@ -19,13 +19,11 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(milliseconds: 1500));
 
     final isLoggedIn = await SecureStorageService.isLoggedIn();
-    debugPrint('Usuario autenticado: $isLoggedIn');
-    debugPrint("montado: $mounted");
     
     if (mounted) {
       if (isLoggedIn) {
         final token = await SecureStorageService.getToken();
-        debugPrint('Token obtenido: $token');
+        
         if (!mounted) return;
         Navigator.pushReplacementNamed(
           context,

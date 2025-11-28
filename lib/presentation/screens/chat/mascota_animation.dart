@@ -73,7 +73,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     
     if (oldWidget.currentEmotion != widget.currentEmotion) {
       final newEmotion = parseEmotion(widget.currentEmotion);
-      debugPrint(" Emoción cambió: ${oldWidget.currentEmotion} → ${widget.currentEmotion}");
+    
       _showEmotionTemporarily(newEmotion);
     }
     
@@ -93,7 +93,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     
    
     if (_currentDisplayedEmotion == emotion) {
-      debugPrint(" Misma emoción ($emotion), solo reiniciando timer");
       _startReturnTimer();
       return;
     }
@@ -107,7 +106,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     
     _emotionTimer = Timer(widget.emotionDuration, () {
       if (mounted && !widget.isSpeaking) {
-        debugPrint(" Volviendo a respirar...");
         _applyEmotion(Emotion.respirar);
       }
     });
@@ -125,7 +123,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
   }
 
   void _applyEmotion(Emotion emotion) {
-    debugPrint(" Aplicando: $emotion (anterior: $_currentDisplayedEmotion)");
     
     _joyInput?.value = (emotion == Emotion.joy);
     _surpriseInput?.value = (emotion == Emotion.surprise);
@@ -135,9 +132,6 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
     
     _currentDisplayedEmotion = emotion;
     
-    debugPrint("   Joy=${_joyInput?.value}, Surprise=${_surpriseInput?.value}, "
-        "Sadness=${_sadnessInput?.value}, Disgust=${_disgustInput?.value}, "
-        "Anger=${_angerInput?.value}");
   }
 
   Future<void> _initializeRive() async {
@@ -147,7 +141,7 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
 
   Future<void> _loadRiveFile() async {
     try {
-      debugPrint(" Cargando Rive...");
+      
       final bytes = await rootBundle.load(_rutaAssetRive);
       final file = RiveFile.import(bytes);
       final artboard = file.artboardByName(_nombreArtboard) ?? file.mainArtboard;
@@ -157,9 +151,9 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
       if (_controller != null) {
         artboard.addController(_controller!);
         
-        debugPrint("📋 Inputs encontrados:");
+       
         for (final input in _controller!.inputs) {
-          debugPrint("   - ${input.name} (${input.runtimeType})");
+        
           if (input is SMIBool) {
             switch (input.name) {
               case 'Joy': _joyInput = input; break;
@@ -171,29 +165,21 @@ class _MascotaAnimationState extends State<MascotaAnimation> {
           }
         }
         
-        // Verificar que todos los inputs se encontraron
-        debugPrint(" Inputs asignados: Joy=${_joyInput != null}, "
-            "Surprise=${_surpriseInput != null}, Sadness=${_sadnessInput != null}, "
-            "Disgust=${_disgustInput != null}, Anger=${_angerInput != null}");
-
         // Aplicar emoción inicial
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             final initial = parseEmotion(widget.currentEmotion);
-            debugPrint(" Emoción inicial: $initial");
             _showEmotionTemporarily(initial);
           }
         });
-      } else {
-        debugPrint(" No se encontró StateMachine: $_nombreMaquinaEstado");
-      }
-
+      } 
+      
       setState(() {
         _mascotaArtboard = artboard;
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint(" Error: $e");
+      
       setState(() {
         _isLoading = false;
         _hasError = true;

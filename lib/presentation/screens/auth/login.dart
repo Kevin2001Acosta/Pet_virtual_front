@@ -37,9 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final authService = AuthService();
       final response = await authService.login(user);
 
-      debugPrint('Respuesta completa: $response');
-      debugPrint(response['token'] ?? 'No se recibió token');
-
       if (response['success'] == true) {
         if (!mounted) return;
         Navigator.pushReplacementNamed(
