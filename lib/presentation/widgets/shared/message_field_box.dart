@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class MessageFieldBox extends StatefulWidget {
   final ValueChanged<String> onValue;
-  final bool enabled; 
+  final bool enabled;
+  final FocusNode? focusNode;
 
   const MessageFieldBox({
     super.key,
     required this.onValue,
-    this.enabled = true, 
+    this.enabled = true,
+    this.focusNode,
   });
 
   @override
@@ -15,23 +17,52 @@ class MessageFieldBox extends StatefulWidget {
 }
 
 class _MessageFieldBoxState extends State<MessageFieldBox> {
-  final textController = TextEditingController();
-  final focusNode = FocusNode();
+  final TextEditingController textController = TextEditingController();
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_onFocusChange);
+  }
+
+  void _onFocusChange() {
+    if (_focusNode.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          Scrollable.ensureVisible(
+            _focusNode.context ?? context,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
+  }
 
   @override
   void dispose() {
     textController.dispose();
-    focusNode.dispose();
+    _focusNode.removeListener(_onFocusChange);
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
   void _sendMessage() {
-    final textValue = textController.text.trim();
-    if (textValue.isNotEmpty && widget.enabled) {
-      textController.clear();
-      widget.onValue(textValue);
-    }
+  final textValue = textController.text.trim();
+  if (textValue.isNotEmpty && widget.enabled) {
+    widget.onValue(textValue);
+    textController.clear();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _focusNode.requestFocus();
+      }
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -101,19 +132,20 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
     );
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withAlpha(25),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: TextFormField(
-        onTapOutside: (event) => focusNode.unfocus(),
-        focusNode: focusNode,
+        onTapOutside: (event) {
+          FocusScope.of(context).unfocus();
+        },
+        focusNode: _focusNode,
         controller: textController,
         enabled: widget.enabled, 
         decoration: inputDecoration,
@@ -123,12 +155,7 @@ class _MessageFieldBoxState extends State<MessageFieldBox> {
         minLines: 1,
         onFieldSubmitted: (value) {
           if (!widget.enabled) return; 
-          final trimmedValue = value.trim();
-          if (trimmedValue.isNotEmpty) {
-            textController.clear();
-            widget.onValue(trimmedValue);
-          }
-          focusNode.requestFocus();
+          _sendMessage();
         },
       ),
     );

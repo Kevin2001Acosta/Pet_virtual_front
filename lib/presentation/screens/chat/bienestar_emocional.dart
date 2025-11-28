@@ -38,12 +38,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
 
 
   Future<void> _cargarFechaInscripcion() async {
-    try {
       _fechaInscripcion = await SecureStorageService.getFechaInscripcion();
-      debugPrint('Fecha inscripción cargada: $_fechaInscripcion');
-    } catch (e) {
-      debugPrint('Error cargando fecha inscripción: $e');
-    }
   }
 
   // Obtener inicio de semana
@@ -101,8 +96,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         final startDate = '${fechaInicio.year}-${fechaInicio.month.toString().padLeft(2, '0')}-${fechaInicio.day.toString().padLeft(2, '0')}';
         final endDate = '${fechaFin.year}-${fechaFin.month.toString().padLeft(2, '0')}-${fechaFin.day.toString().padLeft(2, '0')}';
         
-        debugPrint('Consultando semana: $startDate al $endDate');
-        
         final weekData = await bienestarService.obtenerNivelesSemanales(
           token: token,
           startDate: startDate,
@@ -116,8 +109,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           _navegandoEntreSemanas = false;
           _actualizarEstadoCarga();
         });
-        
-        debugPrint('Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
         setState(() {
           _cargandoGrafica = false;
@@ -126,7 +117,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error cargando datos semanales: $e');
       setState(() {
         _cargandoGrafica = false;
         _navegandoEntreSemanas = false;
@@ -160,8 +150,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         final startDate = '${startOfWeek.year}-${startOfWeek.month.toString().padLeft(2, '0')}-${startOfWeek.day.toString().padLeft(2, '0')}';
         final endDate = '${endOfWeek.year}-${endOfWeek.month.toString().padLeft(2, '0')}-${endOfWeek.day.toString().padLeft(2, '0')}';
         
-        debugPrint(' Consultando niveles emocionales del $startDate al $endDate');
-        
         final weekData = await bienestarService.obtenerNivelesSemanales(
           token: token,
           startDate: startDate,
@@ -174,7 +162,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
           _actualizarEstadoCarga();
         });
         
-        debugPrint(' Datos cargados para la gráfica: ${_datosSemanales?.length} días');
       } else {
         setState(() {
           _cargandoGrafica = false;
@@ -182,7 +169,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      debugPrint(' Error cargando datos semanales: $e');
       setState(() {
         _cargandoGrafica = false;
         _actualizarEstadoCarga();
@@ -193,12 +179,9 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
   Future<void> _cargarEstadoEmocional() async {
     try {
       final token = await _obtenerToken();
-      debugPrint(' Token: ${token != null ? "OK" : "NULL"}');
-      
       if (token != null) {
         final estado = await bienestarService.obtenerEstadoSemaforoSeguro(token);
-        debugPrint(' Estado recibido: $estado');
-        
+
         setState(() {
           //Para pruebas
           // _estadoActual = EstadoSemaforo.rojo;
@@ -221,7 +204,6 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         }
 
       } else {
-        debugPrint(' No hay token disponible');
         setState(() {
           _estadoActual = EstadoSemaforo.verde; 
           _cargandoSemaforo = false;
@@ -229,7 +211,7 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
         });
       }
     } catch (e) {
-      debugPrint(' Error: $e');
+     
       setState(() {
         _estadoActual = EstadoSemaforo.verde; 
         _cargandoSemaforo = false;
@@ -250,14 +232,14 @@ class _BienestarEmocionalScreenState extends State<BienestarEmocionalScreen> {
     try {
       return await SecureStorageService.getToken();
     } catch (e) {
-      debugPrint('Error obteniendo token: $e');
+ 
       return null;
     }
   }
  
   @override
 Widget build(BuildContext context) {
-  debugPrint('Estado: $_estadoActual, Cargando: $_cargando');
+
   return Scaffold(
     backgroundColor: Colors.white,
     appBar: _buildAppBar(context),

@@ -14,10 +14,12 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _petNameController = TextEditingController(); 
   bool _isLoading = false;
   bool _obscureText = true;
-  
+  bool _obscureConfirmText = true;
+
   // Animaciones
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -62,10 +64,12 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   }
 
   Future<void> _registerUser() async {
-    
+    // Validación de campos vacíos
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
-        _passwordController.text.isEmpty) {
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty ||
+        _petNameController.text.isEmpty) {
       showErrorDialog(
         context: context,
         title: 'Campos requeridos',
@@ -74,42 +78,44 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       return;
     }
 
-    final password = _passwordController.text;
-    if (password.length < 8) {
+    if (_passwordController.text != _confirmPasswordController.text) {
       showErrorDialog(
         context: context,
-        title: 'Contraseña muy corta',
-        message: 'La contraseña debe tener al menos 8 caracteres',
+        title: 'Contraseñas no coinciden',
+        message: 'Las contraseñas deben ser iguales',
       );
       return;
-   }
+    }
+
+    final password = _passwordController.text;
 
     if (!password.contains(RegExp(r'[A-Z]'))) {
-    showErrorDialog(
-      context: context,
-      title: 'Falta mayúscula',
-      message: 'La contraseña debe contener al menos una letra mayúscula',
-    );
-    return;
-  }
+      showErrorDialog(
+        context: context,
+        title: 'Falta mayúscula',
+        message: 'La contraseña debe contener al menos una letra mayúscula',
+      );
+      return;
+    }
 
-  if (!password.contains(RegExp(r'[a-z]'))) {
-    showErrorDialog(
-      context: context,
-      title: 'Falta minúscula', 
-      message: 'La contraseña debe contener al menos una letra minúscula',
-    );
-    return;
-  }
+    if (!password.contains(RegExp(r'[a-z]'))) {
+      showErrorDialog(
+        context: context,
+        title: 'Falta minúscula', 
+        message: 'La contraseña debe contener al menos una letra minúscula',
+      );
+      return;
+    }
 
-  if (!password.contains(RegExp(r'[0-9]'))) {
-    showErrorDialog(
-      context: context,
-      title: 'Falta número',
-      message: 'La contraseña debe contener al menos un dígito',
-    );
-    return;
-  }
+    if (!password.contains(RegExp(r'[0-9]'))) {
+      showErrorDialog(
+        context: context,
+        title: 'Falta número',
+        message: 'La contraseña debe contener al menos un dígito',
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
@@ -120,12 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         petName: _petNameController.text,
       );
       
-      debugPrint('Datos del usuario: ${user.toJson()}');
-
       final authService = AuthService();
       final response = await authService.register(user);
-
-       debugPrint('Respuesta del servicio: $response');
 
       if (response['success'] == true) {
         if (mounted) {
@@ -151,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
         }
       }
     } catch (e) {
-      debugPrint('Error completo: $e');
+     
       if (mounted) {
         showErrorDialog(
           context: context,
@@ -193,18 +195,18 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
   }
 
   double _getResponsiveImageSize(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  final isTablet = screenWidth > 600;
-  final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-  
-  if (isTablet) {
-    return screenWidth * 0.3;
-  } else if (isLandscape) {
-    return screenWidth * 0.30; 
-  } else {
-    return screenWidth * 0.5; 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    
+    if (isTablet) {
+      return screenWidth * 0.3;
+    } else if (isLandscape) {
+      return screenWidth * 0.30; 
+    } else {
+      return screenWidth * 0.5; 
+    }
   }
-}
 
   /// Campo de texto estilizado
   Widget _buildStyledTextField({
@@ -213,6 +215,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     required IconData icon,
     required BuildContext context,
     bool isPassword = false,
+    bool isConfirmPassword = false, 
   }) {
     final isTablet = MediaQuery.of(context).size.width > 600;
     
@@ -230,7 +233,9 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       ),
       child: TextField(
         controller: controller,
-        obscureText: isPassword ? _obscureText : false,
+        obscureText: isPassword 
+            ? (isConfirmPassword ? _obscureConfirmText : _obscureText)
+            : false,
         style: TextStyle(
           fontSize: _getResponsiveFontSize(context, 16),
           fontWeight: FontWeight.w500,
@@ -253,13 +258,19 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
           ),
           suffixIcon: isPassword ? IconButton(
             icon: Icon(
-              _obscureText ? Icons.visibility_off : Icons.visibility,
+              (isConfirmPassword ? _obscureConfirmText : _obscureText) 
+                  ? Icons.visibility_off 
+                  : Icons.visibility,
               color: Colors.black, 
               size: _getResponsiveFontSize(context, 20),
             ),
             onPressed: () {
               setState(() {
-                _obscureText = !_obscureText;
+                if (isConfirmPassword) {
+                  _obscureConfirmText = !_obscureConfirmText;
+                } else {
+                  _obscureText = !_obscureText;
+                }
               });
             },
           ) : null,
@@ -289,61 +300,74 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     );
   }
 
- 
-  Widget _buildHeader(BuildContext context) {
-  
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      SizedBox(
-        width: _getResponsiveImageSize(context),
-        height: _getResponsiveImageSize(context),
-        child: Transform.rotate(
-          angle: 0.1,
-          child: Image.asset(
-            'assets/images/registro.png',
-            fit: BoxFit.contain,
+  Widget _buildHeader(BuildContext context, bool isKeyboardVisible) {
+    return Container(
+      width: double.infinity, 
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (!isKeyboardVisible) ...[
+            SizedBox(
+              width: _getResponsiveImageSize(context),
+              height: _getResponsiveImageSize(context),
+              child: Transform.rotate(
+                angle: 0.1,
+                child: Image.asset(
+                  'assets/images/registro.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            SizedBox(height: _getResponsiveSpacing(context, 10)),
+          ],
+          
+          
+          Container(
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center, 
+              children: [
+                Text(
+                  'CREAR CUENTA',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'ComicNeue', 
+                    fontWeight: FontWeight.w800,
+                    fontSize: _getResponsiveFontSize(
+                      context, 
+                      isKeyboardVisible ? 36 : 38 
+                    ),
+                    foreground: Paint()
+                      ..style = PaintingStyle.stroke
+                      ..strokeWidth= 4
+                      ..color = Colors.white,
+                    letterSpacing: 1.2,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  'CREAR CUENTA',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'ComicNeue',
+                    fontWeight: FontWeight.w800,
+                    fontSize: _getResponsiveFontSize(
+                      context, 
+                      isKeyboardVisible ? 36 : 38
+                    ),
+                    color: const Color(0xFFE52E2E), 
+                    letterSpacing: 1.2,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
-      SizedBox(height: _getResponsiveSpacing(context, 12)),
-
-    Stack(
-    children: [
-      Text(
-        'CREAR CUENTA',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontFamily: 'ComicNeue', 
-          fontWeight: FontWeight.w800,
-          fontSize: _getResponsiveFontSize(context, 38),
-          foreground: Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 4
-            ..color = Colors.white,
-          letterSpacing: 1.2,
-          height: 1.1,
-        ),
-    ),
-    // Relleno rojo
-      Text(
-        'CREAR CUENTA',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontFamily: 'ComicNeue',
-          fontWeight: FontWeight.w800,
-          fontSize: _getResponsiveFontSize(context, 38),
-          color: Color(0xFFE52E2E), 
-          letterSpacing: 1.2,
-          height: 1.1,
-        ),
-      ),
-    ],
-    ),
-    ],
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -351,14 +375,18 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
     final screenHeight = MediaQuery.of(context).size.height;
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isTablet = screenWidth > 600;
-    
+
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardVisible = bottomInset > 0; 
     
     final maxWidth = isTablet ? 500.0 : screenWidth;
     
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      
       body: Stack(
         children: [
-           Container(
+          Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -387,10 +415,27 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                         position: _slideAnimation,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center, 
                           children: [
-                         
-                            _buildHeader(context),
-                            SizedBox(height: _getResponsiveSpacing(context, 40)),
+                           
+                            Container(
+                              width: double.infinity,
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder: (Widget child, Animation<double> animation) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: SizeTransition(
+                                      sizeFactor: animation,
+                                      child: child,
+                                    ),
+                                  );
+                                },
+                                child: _buildHeader(context, isKeyboardVisible),
+                              ),
+                            ),
+                            
+                            SizedBox(height: _getResponsiveSpacing(context, isKeyboardVisible ? 15 : 20)),
 
                             // Campos de formulario
                             Column(
@@ -401,14 +446,14 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   icon: Icons.person_outline,
                                   context: context,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 16)),
+                                SizedBox(height: _getResponsiveSpacing(context, 14)),
                                 _buildStyledTextField(
                                   controller: _emailController,
                                   label: 'Correo electrónico',
                                   icon: Icons.email,
                                   context: context,
                                 ),
-                                SizedBox(height: _getResponsiveSpacing(context, 16)),
+                                SizedBox(height: _getResponsiveSpacing(context, 14)),
                                 _buildStyledTextField(
                                   controller: _passwordController,
                                   label: 'Contraseña',
@@ -416,34 +461,44 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                   context: context,
                                   isPassword: true,
                                 ),
-                              ],
-                            ),
-                            SizedBox(height: _getResponsiveSpacing(context, 16)),
-                            _buildStyledTextField(
+                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                _buildStyledTextField(
+                                  controller: _confirmPasswordController,
+                                  label: 'Confirmar contraseña',
+                                  icon: Icons.lock_outline,
+                                  context: context,
+                                  isPassword: true,
+                                  isConfirmPassword: true,
+                                ),
+                                SizedBox(height: _getResponsiveSpacing(context, 14)),
+                                _buildStyledTextField(
                                   controller: _petNameController,
                                   label: 'Nombre mascota',
                                   icon: Icons.pets,
                                   context: context,
                                 ),
-                              SizedBox(height: _getResponsiveSpacing(context, 50)),
+                              ],
+                            ),
+                            SizedBox(height: _getResponsiveSpacing(context, 40)),
+                            
                             // Botón de registro
                             Container(
                               width: double.infinity,
                               height: isTablet ? 60 : 55,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(25),
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    const Color.fromARGB(255, 243, 84, 73),
-                                    const Color.fromARGB(255, 229, 47, 47),
-                                    const Color.fromARGB(255, 211, 47, 47),
+                                    Color.fromARGB(255, 243, 84, 73),
+                                    Color.fromARGB(255, 229, 47, 47),
+                                    Color.fromARGB(255, 211, 47, 47),
                                   ],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color.fromARGB(255, 243, 84, 73).withValues(alpha: 0.4),
+                                    color: const Color.fromARGB(255, 243, 84, 73).withValues(alpha: 0.4), 
                                     blurRadius: 20,
                                     offset: const Offset(0, 10),
                                   ),
@@ -487,7 +542,7 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
                                 text: TextSpan(
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
-                                    fontSize: _getResponsiveFontSize(context, 16),
+                                    fontSize: _getResponsiveFontSize(context, 14),
                                     color: Colors.black,
                                   ),
                                   children: [
@@ -517,12 +572,14 @@ class _RegisterScreenState extends State<RegisterScreen> with TickerProviderStat
       ),
     );
   }
-
+  
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _petNameController.dispose();
     _fadeController.dispose();
     _slideController.dispose();
     super.dispose();

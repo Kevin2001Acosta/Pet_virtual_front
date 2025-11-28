@@ -9,7 +9,8 @@ class ChatProvider extends ChangeNotifier {
   String _currentEmotion = 'respirar';
   bool _isLoading = false;
   String _petName = 'Mascota Virtual';
-  bool _sessionExpired = false; 
+  bool _sessionExpired = false;
+  double _lastViewInsets = 0; 
 
   List<Message> messageList = [];
 
@@ -28,7 +29,6 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //Mostrar el escribiendo
   void _startTyping() {
     final typingMessage = Message(
       text: 'Escribiendo...',
@@ -36,7 +36,7 @@ class ChatProvider extends ChangeNotifier {
     );
     messageList.add(typingMessage);
     notifyListeners();
-    moveScrollToBottom();
+    scrollToBottom(animated: true);
   }
 
   void _stopTyping() {
@@ -46,19 +46,61 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
+ void scrollToBottom({bool animated = true}) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (chatScrollController.hasClients) {
+      final position = chatScrollController.position;
+      if (position.maxScrollExtent > 0) {
+        if (animated) {
+          chatScrollController.animateTo(
+            position.maxScrollExtent,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOut,
+          );
+        } else {
+          chatScrollController.jumpTo(position.maxScrollExtent);
+        }
+      }
+    }
+    
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (chatScrollController.hasClients) {
+        final position = chatScrollController.position;
+        if (position.maxScrollExtent > 0) {
+          chatScrollController.jumpTo(position.maxScrollExtent);
+        }
+      }
+    });
+  });
+}
+
+
+void ensureScrollOnKeyboard() {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    scrollToBottom(animated: true);
+  });
+}
+
+
+void handleViewInsetsChange(double viewInsets) {
+  if (viewInsets > _lastViewInsets && messageList.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToBottom(animated: true);
+    });
+  }
+  _lastViewInsets = viewInsets;
+}
+
   Future<void> sendMessage(String text, String token) async {
     if (text.isEmpty) return;
 
     final newMessage = Message(text: text, fromWho: FromWho.me);
     messageList.add(newMessage);
-
     notifyListeners();
 
     _setLoading(true);
-
     _startTyping();
-
-    moveScrollToBottom();
+    scrollToBottom(animated: true);
 
     herReply(text, token);
   }
@@ -108,14 +150,12 @@ class ChatProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
       notifyListeners();
-      moveScrollToBottom();
+      scrollToBottom(animated: true);
     }
   }
 
   Future<void> loadMessages(String token) async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setLoading(true);
-    });
+    _setLoading(true);
 
     try {
       final Map<String, dynamic> result = await getIAAnswer.getMessages(token);
@@ -143,17 +183,8 @@ class ChatProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
       notifyListeners();
-      moveScrollToBottom();
+      scrollToBottom(animated: false);
     }
-  }
-  Future<void> moveScrollToBottom() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!chatScrollController.hasClients) return;
-    chatScrollController.animateTo(
-      chatScrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
   }
 
   @override
